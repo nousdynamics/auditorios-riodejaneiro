@@ -1,0 +1,33 @@
+{
+  "name": "auditorios-riodejaneiro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site e portal de gestão dos auditórios InterFISIO no Centro do Rio de Janeiro (Cloudflare Workers).",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "media": "node scripts/optimize-media.mjs",
+    "typecheck": "node scripts/build.mjs && tsc -p tsconfig.json && tsc -p tsconfig.client.json",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm test",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "admin:create": "node scripts/create-admin.mjs",
+    "cf:typegen": "wrangler types --env-interface Env src/worker/env.d.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261108.1",
+    "@fontsource-variable/hanken-grotesk": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "esbuild": "^0.28.2",
+    "sharp": "^0.35.5",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.158.0"
+  }
+}

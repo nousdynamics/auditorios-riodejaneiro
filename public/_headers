@@ -1,0 +1,28 @@
+# Cabeçalhos dos arquivos estáticos (Workers Static Assets)
+/assets/app/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/assets/img/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/assets/video/*
+  Cache-Control: public, max-age=2592000
+  X-Content-Type-Options: nosniff
+
+/assets/icons.svg
+  Cache-Control: public, max-age=604800
+
+/*.png
+  Cache-Control: public, max-age=604800
+
+/favicon.*
+  Cache-Control: public, max-age=604800
+
+/og-image.*
+  Cache-Control: public, max-age=86400

@@ -1,0 +1,55 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "auditorios-riodejaneiro",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Gera CSS/JS com hash em public/assets/app e o manifesto usado pelo Worker.
+  // Roda sozinho antes de `wrangler dev` e `wrangler deploy` (inclusive no Workers Builds do GitHub).
+  "build": {
+    "command": "node scripts/build.mjs",
+    "watch_dir": "src"
+  },
+
+  // Arquivos estáticos (imagens, fontes, vídeo, CSS/JS) servidos direto pela borda.
+  // O que não existir em public/ cai no Worker (páginas, API, sitemap, robots, llms.txt).
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "html_handling": "none",
+    // Vídeos passam pelo Worker para responder a requisições Range (exigidas pelo Safari/iOS)
+    "run_worker_first": ["/assets/video/*"]
+  },
+
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
+
+  "observability": { "enabled": true },
+
+  "vars": {
+    // URL canônica do site (sem barra no final). Vazio = usa o domínio da requisição.
+    "SITE_URL": ""
+  },
+
+  // Sem database_id / bucket próprio: o `wrangler deploy` cria os recursos na primeira vez
+  // (provisionamento automático) e reaproveita nas próximas. O schema é aplicado pelo Worker.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "auditorios-riodejaneiro-db",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "auditorios-riodejaneiro-media"
+    }
+  ]
+
+  // Segredos (não ficam no repositório):
+  //   wrangler secret put SETUP_TOKEN          -> libera /admin/setup para criar o primeiro administrador
+  //   wrangler secret put LEADS_WEBHOOK_URL    -> (opcional) copia cada consulta para n8n/Make/Zapier
+  //   wrangler secret put LEADS_WEBHOOK_SECRET -> (opcional) enviado no header X-Webhook-Secret
+}

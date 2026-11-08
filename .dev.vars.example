@@ -1,0 +1,4 @@
+# Copie para .dev.vars (não versionado) para testar localmente
+SETUP_TOKEN=troque-por-um-codigo-longo
+# LEADS_WEBHOOK_URL=https://seu-n8n/webhook/consultas
+# LEADS_WEBHOOK_SECRET=segredo

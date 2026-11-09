@@ -37,6 +37,7 @@ describe('validateLead', () => {
   const base = {
     name: 'Maria',
     email: 'maria@example.com',
+    phone: '(21) 99999-0000',
     space: 'Auditório 1',
     activity: 'Aula ou curso',
     eventDate: '2026-12-01',
@@ -52,6 +53,11 @@ describe('validateLead', () => {
     expect(lead.people).toBe(30);
   });
 
+  it('exige WhatsApp com DDD', () => {
+    expect(fieldsOf(() => validateLead({ ...base, phone: '' }, today)).phone).toBe('Informe seu WhatsApp.');
+    expect(fieldsOf(() => validateLead({ ...base, phone: '99999-0000' }, today)).phone).toBeDefined();
+  });
+
   it('exige e-mail válido', () => {
     expect(fieldsOf(() => validateLead({ ...base, email: '' }, today)).email).toBe('Informe seu e-mail.');
     expect(fieldsOf(() => validateLead({ ...base, email: 'maria@' }, today)).email).toBeDefined();
@@ -59,7 +65,7 @@ describe('validateLead', () => {
 
   it('aponta os campos obrigatórios', () => {
     const fields = fieldsOf(() => validateLead({ channel: 'formulario' }, today));
-    expect(Object.keys(fields)).toEqual(expect.arrayContaining(['name', 'email', 'space', 'eventDate', 'people', 'schedule']));
+    expect(Object.keys(fields)).toEqual(expect.arrayContaining(['name', 'email', 'phone', 'space', 'eventDate', 'people', 'schedule']));
   });
 
   it('recusa data no passado', () => {

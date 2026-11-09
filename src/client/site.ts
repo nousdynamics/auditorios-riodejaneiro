@@ -329,7 +329,7 @@ function consultForm(): void {
     if (!result.hidden) showForm();
     // foca o primeiro campo vazio depois da rolagem
     setTimeout(() => {
-      const empty = ['name', 'email', 'eventDate', 'people', 'schedule'].map((n) => fields[n]).find((f) => f && !f.value);
+      const empty = ['name', 'email', 'phone', 'eventDate', 'people', 'schedule'].map((n) => fields[n]).find((f) => f && !f.value);
       empty?.focus({ preventScroll: true });
     }, reducedMotion ? 0 : 650);
   });
@@ -382,7 +382,9 @@ function consultForm(): void {
     if ((data.name ?? '').trim().length < 2) errors.name = 'Informe seu nome.';
     if (!email) errors.email = 'Informe seu e-mail.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
-    if (data.phone && data.phone.replace(/\D/g, '').length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
+    const phoneDigits = (data.phone ?? '').replace(/\D/g, '');
+    if (!phoneDigits) errors.phone = 'Informe seu WhatsApp.';
+    else if (phoneDigits.length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
     if (!data.eventDate) errors.eventDate = 'Escolha a data pretendida.';
     if (!data.people || Number(data.people) < 1) errors.people = 'Informe quantas pessoas vão participar.';
     if (!(data.schedule ?? '').trim()) errors.schedule = 'Informe o horário e a duração.';
@@ -447,8 +449,7 @@ function consultForm(): void {
     const firstName = data.name.trim().split(/\s+/)[0];
     const when = formatDateBr(data.eventDate);
     const about = data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
-    const channels = data.phone ? `no WhatsApp ou no e-mail ${email}` : `no e-mail ${email}`;
-    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder ${channels} com disponibilidade, recursos e valores (${about}).`;
+    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder no WhatsApp ou no e-mail ${email} com disponibilidade, recursos e valores (${about}).`;
     $<HTMLAnchorElement>('#send-whatsapp')!.href = waHref;
 
     try {

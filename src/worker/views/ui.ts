@@ -220,8 +220,8 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <input id="f-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
     </div>
     <div class="field">
-      <label for="f-phone">WhatsApp <span class="opt">(opcional)</span></label>
-      <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 90000-0000" maxlength="20">
+      <label for="f-phone">WhatsApp</label>
+      <input id="f-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="(21) 90000-0000" maxlength="20">
     </div>
     <div class="field">
       <label for="f-activity">Atividade</label>

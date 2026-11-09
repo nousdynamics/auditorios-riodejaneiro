@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { buildLeadWebhookPayload, leadEnvironment } from '../src/worker/leads-webhook';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { buildLeadWebhookPayload, buildTrafficPayload, deliverLead, leadEnvironment } from '../src/worker/leads-webhook';
 import type { Lead } from '../src/shared/types';
 
 const lead: Lead = {
@@ -58,5 +58,70 @@ describe('payload do webhook de consultas', () => {
     expect(leadEnvironment('http://localhost:8787')).toBe('local');
     expect(leadEnvironment('https://auditorios-riodejaneiro.conta.workers.dev')).toBe('preview');
     expect(leadEnvironment('https://www.exemplo.com.br')).toBe('production');
+  });
+});
+
+describe('payload do Omini Traffic Engine', () => {
+  it('leva o segredo em "web-secret" e o resumo em message', () => {
+    const p = buildTrafficPayload(lead, 'https://www.exemplo.com.br', 'seg');
+    expect(p['web-secret']).toBe('seg');
+    expect(p.name).toBe('Maria Teste');
+    expect(p.phone).toBe('5521999998888');
+    expect(p.details).toBe('Precisamos de projetor.');
+    expect(p.message).toContain('Espaço: Auditório 2');
+    expect(p.message).toContain('Data: 10/12/2026');
+    expect(p.message).toContain('Participantes: 40');
+    expect(p.message).toContain('Observações: Precisamos de projetor.');
+    expect(p.message).toContain('Origem: google / auditorios');
+    expect(p.message).toContain('Painel: https://www.exemplo.com.br/admin#/consultas/abc-123');
+  });
+  it('sem segredo não manda o campo', () => {
+    expect('web-secret' in buildTrafficPayload(lead, 'https://x.com.br')).toBe(false);
+  });
+});
+
+describe('deliverLead', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const env = {
+    LEADS_WEBHOOK_URL: 'https://n8n.test/hook',
+    LEADS_WEBHOOK_SECRET: 'h',
+    TRAFFIC_LEADS_WEBHOOK_URL: 'https://engine.test/webhook/leads/form',
+    TRAFFIC_LEADS_WEBHOOK_SECRET: 'w',
+  } as unknown as Env;
+
+  it('envia para os dois destinos com o formato de cada um', async () => {
+    const calls: { url: string; headers: Record<string, string>; body: Record<string, unknown> }[] = [];
+    vi.stubGlobal('fetch', async (url: string, init: RequestInit) => {
+      calls.push({ url, headers: init.headers as Record<string, string>, body: JSON.parse(String(init.body)) });
+      return new Response('{}', { status: 200 });
+    });
+    expect(await deliverLead(env, lead, 'https://x.com.br', 0)).toEqual({ n8n: true, 'traffic-engine': true });
+    const n8n = calls.find((c) => c.url.includes('n8n'))!;
+    const engine = calls.find((c) => c.url.includes('engine'))!;
+    expect(n8n.headers['X-Webhook-Secret']).toBe('h');
+    expect(n8n.body.message).toBe('Precisamos de projetor.');
+    expect('web-secret' in n8n.body).toBe(false);
+    expect(engine.body['web-secret']).toBe('w');
+    expect(String(engine.body.message)).toContain('Espaço: Auditório 2');
+  });
+
+  it('tenta de novo em erro 5xx, mas não em 4xx; um destino não derruba o outro', async () => {
+    const hits: Record<string, number> = {};
+    vi.stubGlobal('fetch', async (url: string) => {
+      hits[url] = (hits[url] ?? 0) + 1;
+      if (url.includes('n8n')) return new Response('down', { status: hits[url] === 1 ? 503 : 200 });
+      return new Response('{"error":"secret inválido"}', { status: 401 });
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(await deliverLead(env, lead, 'https://x.com.br', 0)).toEqual({ n8n: true, 'traffic-engine': false });
+    expect(hits['https://n8n.test/hook']).toBe(2);
+    expect(hits['https://engine.test/webhook/leads/form']).toBe(1);
+  });
+
+  it('sem destinos configurados não chama nada', async () => {
+    const f = vi.fn();
+    vi.stubGlobal('fetch', f);
+    expect(await deliverLead({} as Env, lead, 'https://x.com.br', 0)).toEqual({});
+    expect(f).not.toHaveBeenCalled();
   });
 });

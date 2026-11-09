@@ -1,10 +1,10 @@
 import * as repo from '../db/repo';
 import { sha256Hex } from '../lib/crypto';
-import { sendLeadWebhook } from '../leads-webhook';
+import { deliverLead, hasLeadDestinations } from '../leads-webhook';
 import { HttpError, assertSameOrigin, clientIp, errorJson, json, readJson } from '../lib/http';
 import { validateLead } from '../validate';
 
-/** POST /api/leads — grava a consulta no D1 e, se configurado, copia para um webhook. */
+/** POST /api/leads — grava a consulta no D1 e, se configurado, copia para os webhooks. */
 export async function handleLead(request: Request, env: Env, ctx: ExecutionContext, base: string): Promise<Response> {
   try {
     assertSameOrigin(request);
@@ -35,16 +35,8 @@ export async function handleLead(request: Request, env: Env, ctx: ExecutionConte
       userAgent: request.headers.get('User-Agent') ?? '',
     });
 
-    if (env.LEADS_WEBHOOK_URL) {
-      // Em segundo plano, com uma nova tentativa se o destino falhar.
-      ctx.waitUntil(
-        (async () => {
-          if (await sendLeadWebhook(env, lead, base)) return;
-          await new Promise((r) => setTimeout(r, 3000));
-          await sendLeadWebhook(env, lead, base);
-        })(),
-      );
-    }
+    // Cópia para n8n / traffic engine em segundo plano (com uma nova tentativa em falha temporária).
+    if (hasLeadDestinations(env)) ctx.waitUntil(deliverLead(env, lead, base));
     return json({ ok: true, id: lead.id }, { status: 201 });
   } catch (err) {
     return errorJson(err);

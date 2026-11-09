@@ -1,10 +1,14 @@
 import type { Lead } from '../shared/types';
 
 /**
- * Cópia de cada consulta para o n8n (ou Make/Zapier). Formato plano, em snake_case,
- * no mesmo padrão dos leads do Yevent (name, phone, space_name, event_type,
- * guest_count, preferred_date, utm_*, page_url...), para reaproveitar o fluxo.
- * A consulta já está gravada no D1 antes do envio: falha no webhook nunca afeta o visitante.
+ * Cópia de cada consulta para os destinos externos. A consulta já está gravada no D1
+ * antes do envio: falha num destino nunca afeta o visitante nem os outros destinos.
+ *
+ * - n8n (LEADS_WEBHOOK_URL): linha plana em snake_case, no mesmo padrão dos leads do
+ *   Yevent (name, phone, space_name, event_type, guest_count, preferred_date, utm_*...).
+ * - Omini Traffic Engine (TRAFFIC_LEADS_WEBHOOK_URL): mesmo corpo, mas `message` traz o
+ *   resumo da consulta (o template padrão do engine só mostra nome, e-mail, telefone e
+ *   mensagem no WhatsApp) e o segredo vai no campo "web-secret" do corpo.
  */
 
 export type LeadEnvironment = 'production' | 'preview' | 'local';
@@ -57,25 +61,101 @@ export function buildLeadWebhookPayload(lead: Lead, base: string) {
   };
 }
 
-/** Envia a consulta ao webhook configurado. Nunca lança; devolve true se o destino confirmou (2xx). */
-export async function sendLeadWebhook(env: Env, lead: Lead, base: string): Promise<boolean> {
-  const url = env.LEADS_WEBHOOK_URL?.trim();
-  if (!url) return false;
+/** 2026-12-15 → 15/12/2026 (outros formatos passam como vieram). */
+function dateBR(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+}
+
+/** Resumo em texto da consulta, para notificações (WhatsApp do traffic engine). */
+export function leadSummary(lead: Lead, base: string): string {
+  const lines: [string, string | number | null][] = [
+    ['Espaço', lead.space],
+    ['Atividade', lead.activity],
+    ['Data', dateBR(lead.eventDate)],
+    ['Participantes', lead.people],
+    ['Modalidade', lead.modality],
+    ['Horário', lead.schedule],
+    ['Observações', lead.details],
+    ['Origem', [lead.utm.utm_source, lead.utm.utm_campaign].filter(Boolean).join(' / ')],
+    ['Painel', `${base}/admin#/consultas/${encodeURIComponent(lead.id)}`],
+  ];
+  return '\n' + lines.filter(([, v]) => v !== null && v !== '').map(([k, v]) => `${k}: ${v}`).join('\n');
+}
+
+export function buildTrafficPayload(lead: Lead, base: string, secret?: string) {
+  return {
+    ...(secret ? { 'web-secret': secret } : {}),
+    ...buildLeadWebhookPayload(lead, base),
+    message: leadSummary(lead, base),
+    details: lead.details,
+  };
+}
+
+interface Target {
+  label: string;
+  url: string;
+  headers: Record<string, string>;
+  body: unknown;
+}
+
+function targets(env: Env, lead: Lead, base: string): Target[] {
+  const list: Target[] = [];
+  const n8n = env.LEADS_WEBHOOK_URL?.trim();
+  if (n8n) {
+    list.push({
+      label: 'n8n',
+      url: n8n,
+      headers: env.LEADS_WEBHOOK_SECRET ? { 'X-Webhook-Secret': env.LEADS_WEBHOOK_SECRET } : {},
+      body: buildLeadWebhookPayload(lead, base),
+    });
+  }
+  const traffic = env.TRAFFIC_LEADS_WEBHOOK_URL?.trim();
+  if (traffic) {
+    list.push({
+      label: 'traffic-engine',
+      url: traffic,
+      headers: {},
+      body: buildTrafficPayload(lead, base, env.TRAFFIC_LEADS_WEBHOOK_SECRET?.trim()),
+    });
+  }
+  return list;
+}
+
+type Attempt = 'ok' | 'retry' | 'fail';
+
+async function post(t: Target, leadId: string): Promise<Attempt> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(t.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'auditorios-riodejaneiro-worker',
-        ...(env.LEADS_WEBHOOK_SECRET ? { 'X-Webhook-Secret': env.LEADS_WEBHOOK_SECRET } : {}),
-      },
-      body: JSON.stringify(buildLeadWebhookPayload(lead, base)),
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'auditorios-riodejaneiro-worker', ...t.headers },
+      body: JSON.stringify(t.body),
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) console.error('[leads-webhook] destino respondeu', res.status, (await res.text().catch(() => '')).slice(0, 200));
-    return res.ok;
+    if (res.ok) return 'ok';
+    console.error(`[leads-webhook:${t.label}] respondeu ${res.status}`, leadId, (await res.text().catch(() => '')).slice(0, 200));
+    // 4xx (segredo errado, formulário inexistente...) não melhora com nova tentativa
+    return res.status >= 500 || res.status === 429 ? 'retry' : 'fail';
   } catch (err) {
-    console.error('[leads-webhook] falha ao enviar', lead.id, err);
-    return false;
+    console.error(`[leads-webhook:${t.label}] falha ao enviar`, leadId, err);
+    return 'retry';
   }
 }
+
+/** Envia a consulta a todos os destinos configurados, em paralelo. Nunca lança. */
+export async function deliverLead(env: Env, lead: Lead, base: string, retryDelayMs = 3000): Promise<Record<string, boolean>> {
+  const list = targets(env, lead, base);
+  const results = await Promise.all(
+    list.map(async (t) => {
+      let r = await post(t, lead.id);
+      if (r === 'retry') {
+        await new Promise((ok) => setTimeout(ok, retryDelayMs));
+        r = await post(t, lead.id);
+      }
+      return [t.label, r === 'ok'] as const;
+    }),
+  );
+  return Object.fromEntries(results);
+}
+
+export const hasLeadDestinations = (env: Env): boolean => Boolean(env.LEADS_WEBHOOK_URL?.trim() || env.TRAFFIC_LEADS_WEBHOOK_URL?.trim());

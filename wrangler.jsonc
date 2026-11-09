@@ -52,4 +52,6 @@
   //   wrangler secret put SETUP_TOKEN          -> libera /admin/setup para criar o primeiro administrador
   //   wrangler secret put LEADS_WEBHOOK_URL    -> webhook do n8n que recebe cada consulta (repo público: nunca no código)
   //   wrangler secret put LEADS_WEBHOOK_SECRET -> (opcional) enviado no header X-Webhook-Secret
+  //   wrangler secret put TRAFFIC_LEADS_WEBHOOK_URL    -> Omini Traffic Engine (/webhook/leads/<formulário>)
+  //   wrangler secret put TRAFFIC_LEADS_WEBHOOK_SECRET -> LEAD_WEBHOOK_SECRET do engine, vai no campo "web-secret"
 }

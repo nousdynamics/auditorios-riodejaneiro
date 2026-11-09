@@ -250,7 +250,7 @@ export function validateLead(body: unknown, today = new Date()): LeadInput {
   const e = new Errors();
   const name = str(body, 'name', e, { max: 100, required: true, label: 'seu nome' });
   if (name && name.length < 2) e.add('name', 'Informe seu nome.');
-  const email = str(body, 'email', e, { max: 120 });
+  const email = str(body, 'email', e, { max: 120, required: true, label: 'seu e-mail' });
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.add('email', 'E-mail inválido.');
   const phone = normalizePhone(str(body, 'phone', e, { max: 30 }));
   if (phone && phone.length < 12) e.add('phone', 'Telefone incompleto: inclua o DDD.');

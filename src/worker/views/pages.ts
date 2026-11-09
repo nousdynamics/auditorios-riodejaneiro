@@ -258,7 +258,7 @@ export function roomPage(ctx: RenderCtx, data: SiteData, r: Room): SafeHtml {
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
     <h2 id="consulta-title" class="section__title">Consultar o ${r.name}</h2>
-    <p class="section__lead">Informe data, horário e participantes. Você revisa a mensagem antes de enviar.</p>
+    <p class="section__lead">Informe data, horário e participantes. A equipe responde com disponibilidade e valores.</p>
     ${steps()}
   </div>
   <div class="booking__form">${consultForm(s, rooms, { preset: r.name })}</div>

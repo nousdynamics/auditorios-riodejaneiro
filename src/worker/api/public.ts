@@ -1,10 +1,11 @@
 import * as repo from '../db/repo';
 import { sha256Hex } from '../lib/crypto';
+import { sendLeadWebhook } from '../leads-webhook';
 import { HttpError, assertSameOrigin, clientIp, errorJson, json, readJson } from '../lib/http';
 import { validateLead } from '../validate';
 
 /** POST /api/leads — grava a consulta no D1 e, se configurado, copia para um webhook. */
-export async function handleLead(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+export async function handleLead(request: Request, env: Env, ctx: ExecutionContext, base: string): Promise<Response> {
   try {
     assertSameOrigin(request);
     const input = validateLead(await readJson(request, 16_000));
@@ -35,15 +36,13 @@ export async function handleLead(request: Request, env: Env, ctx: ExecutionConte
     });
 
     if (env.LEADS_WEBHOOK_URL) {
+      // Em segundo plano, com uma nova tentativa se o destino falhar.
       ctx.waitUntil(
-        fetch(env.LEADS_WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(env.LEADS_WEBHOOK_SECRET ? { 'X-Webhook-Secret': env.LEADS_WEBHOOK_SECRET } : {}),
-          },
-          body: JSON.stringify({ type: 'consulta_auditorio', lead }),
-        }).catch((err) => console.error('Webhook de consultas falhou', err)),
+        (async () => {
+          if (await sendLeadWebhook(env, lead, base)) return;
+          await new Promise((r) => setTimeout(r, 3000));
+          await sendLeadWebhook(env, lead, base);
+        })(),
       );
     }
     return json({ ok: true, id: lead.id }, { status: 201 });

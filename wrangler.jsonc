@@ -50,6 +50,6 @@
 
   // Segredos (não ficam no repositório):
   //   wrangler secret put SETUP_TOKEN          -> libera /admin/setup para criar o primeiro administrador
-  //   wrangler secret put LEADS_WEBHOOK_URL    -> (opcional) copia cada consulta para n8n/Make/Zapier
+  //   wrangler secret put LEADS_WEBHOOK_URL    -> webhook do n8n que recebe cada consulta (repo público: nunca no código)
   //   wrangler secret put LEADS_WEBHOOK_SECRET -> (opcional) enviado no header X-Webhook-Secret
 }

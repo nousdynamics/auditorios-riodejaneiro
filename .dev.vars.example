@@ -1,4 +1,5 @@
 # Copie para .dev.vars (não versionado) para testar localmente
 SETUP_TOKEN=troque-por-um-codigo-longo
+# Webhook de consultas. Em dev, prefira um receptor de teste: os envios locais chegam com environment=local.
 # LEADS_WEBHOOK_URL=https://seu-n8n/webhook/consultas
 # LEADS_WEBHOOK_SECRET=segredo

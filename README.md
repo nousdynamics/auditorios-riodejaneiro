@@ -85,14 +85,44 @@ npm run media       # regenera mídia a partir de media-src/ (precisa de ffmpeg 
 4. Segredos (Settings → Variables and Secrets do Worker, ou pelo terminal):
    ```bash
    npx wrangler secret put SETUP_TOKEN            # libera /admin/setup para criar o 1º admin
-   npx wrangler secret put LEADS_WEBHOOK_URL      # opcional: copia cada consulta para n8n/Make/Zapier
+   npx wrangler secret put LEADS_WEBHOOK_URL      # webhook do n8n que recebe cada consulta (ver abaixo)
    npx wrangler secret put LEADS_WEBHOOK_SECRET   # opcional: vai no header X-Webhook-Secret
    ```
+   O repositório é público: a URL do webhook fica **só** no segredo do Cloudflare, nunca no código.
 5. Domínio: em **Settings → Domains & Routes** adicione o domínio e defina a variável `SITE_URL` (ex.: `https://www.seudominio.com.br`) no `wrangler.jsonc`. Ela é usada nas URLs canônicas, no sitemap e no JSON-LD.
 6. Acesse `/admin`, crie o administrador com o `SETUP_TOKEN` e depois **apague o segredo** `SETUP_TOKEN` (o setup só funciona com o banco sem usuários, mas não há motivo para deixá-lo ativo).
    Alternativa pelo terminal: `npm run admin:create -- --email voce@empresa.com.br --name "Seu Nome" --remote`.
 
 **Alternativa:** `.github/workflows/deploy.yml` publica via GitHub Actions quando os segredos `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` existem no repositório. Use um dos dois caminhos, não ambos. O `ci.yml` roda tipos, testes e um deploy de teste (`--dry-run`) em todo push e PR.
+
+## Webhook de consultas (n8n)
+
+Cada consulta enviada pelo site é gravada no D1 (aparece em **/admin → Consultas**) e, se `LEADS_WEBHOOK_URL` estiver definido, copiada em segundo plano para o webhook via `POST` JSON. Se o destino falhar, o Worker tenta de novo uma vez após 3 s; a consulta nunca se perde porque já está no banco (dá para exportar em CSV).
+
+Formato (plano, mesmo padrão dos leads do Yevent):
+
+```json
+{
+  "type": "consulta_auditorio",
+  "source": "site-auditorios-rio",
+  "environment": "production | preview | local",
+  "received_at": "2026-11-08T12:00:00.000Z",
+  "id": "lead-…",
+  "name": "Maria", "email": "maria@…", "phone": "5521999998888",
+  "whatsapp_url": "https://wa.me/5521999998888",
+  "space_name": "Auditório 1", "event_type": "Aula ou curso",
+  "preferred_date": "2026-12-15", "guest_count": 35,
+  "modality": "Por turno", "schedule": "Manhã, 4 horas",
+  "message": "…", "channel": "whatsapp | email | copia | formulario",
+  "utm_source": "", "utm_medium": "", "utm_campaign": "", "utm_term": "", "utm_content": "",
+  "gclid": "", "fbclid": "",
+  "page_url": "https://…/auditorios/auditorio-1",
+  "admin_url": "https://…/admin#/consultas/lead-…",
+  "site_url": "https://…"
+}
+```
+
+`phone` já vem com 55 + DDD (pronto para WhatsApp/Evolution API) ou vazio. Use `environment` para ignorar testes locais e de preview no fluxo. Código: `src/worker/leads-webhook.ts`.
 
 ## Painel (/admin)
 

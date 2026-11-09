@@ -57,7 +57,7 @@ export default {
     if (path.startsWith('/api/admin')) return handleAdminApi(request, env, url);
     if (path === '/api/leads') {
       if (method !== 'POST') return json({ error: 'Use POST.' }, { status: 405, headers: { Allow: 'POST' } });
-      return handleLead(request, env, ctx);
+      return handleLead(request, env, ctx, siteBase(env, url));
     }
     if (path === '/api/health') return json({ ok: true, time: new Date().toISOString() });
     if (path.startsWith('/api/')) return json({ error: 'Rota não encontrada.' }, { status: 404 });

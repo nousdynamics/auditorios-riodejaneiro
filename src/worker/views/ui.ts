@@ -204,7 +204,7 @@ export function faqList(faqs: Faq[], id = 'faq'): SafeHtml {
 export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: string; modality?: string } = {}): SafeHtml {
   const spaces = [GUIDANCE_SPACE, ...rooms.map((r) => r.name), CORPORATE_SPACE];
   const preset = opts.preset ?? GUIDANCE_SPACE;
-  return html`<form class="consult" id="consult-form" novalidate data-whatsapp="${s.whatsapp}" data-email="${s.email}" data-brand="${s.brandName}">
+  return html`<form class="consult" id="consult-form" novalidate data-whatsapp="${s.whatsapp}" data-email="${s.email}" data-brand="${s.brandName}" data-guidance="${GUIDANCE_SPACE}">
     <div class="field field--wide">
       <label for="f-space">Espaço de interesse</label>
       <select id="f-space" name="space">
@@ -216,7 +216,11 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <input id="f-name" name="name" required autocomplete="name" placeholder="Como podemos chamar você?" maxlength="100">
     </div>
     <div class="field">
-      <label for="f-phone">WhatsApp ou telefone <span class="opt">(opcional)</span></label>
+      <label for="f-email">E-mail</label>
+      <input id="f-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
+    </div>
+    <div class="field">
+      <label for="f-phone">WhatsApp <span class="opt">(opcional)</span></label>
       <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(21) 90000-0000" maxlength="20">
     </div>
     <div class="field">
@@ -237,7 +241,7 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
         ${MODALITIES.map((m) => html`<option ${raw(m === opts.modality ? 'selected' : '')}>${m}</option>`)}
       </select>
     </div>
-    <div class="field field--wide">
+    <div class="field">
       <label for="f-schedule">Horário e duração</label>
       <input id="f-schedule" name="schedule" required placeholder="Ex.: das 9h às 13h" maxlength="80">
     </div>
@@ -250,27 +254,26 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <input id="f-website" name="website" tabindex="-1" autocomplete="off">
     </div>
     <div class="field--wide consult__submit">
-      <button class="btn btn--gold btn--lg" type="submit">Preparar mensagem de consulta</button>
-      <p class="consult__note">Você revisa a mensagem e escolhe enviar pelo WhatsApp ou por e-mail. A reserva depende da confirmação da equipe.</p>
+      <button class="btn btn--gold btn--lg" type="submit">Enviar consulta</button>
+      <p class="consult__note">Usamos seus dados só para responder a esta consulta. <a href="/politica-de-privacidade">Política de privacidade</a></p>
     </div>
     <p class="consult__status field--wide" role="status" aria-live="polite"></p>
   </form>
   <div class="consult-result" id="consult-result" hidden tabindex="-1">
-    <p class="consult-result__title">Sua mensagem está pronta</p>
-    <pre class="consult-result__message" id="consult-message"></pre>
+    <span class="consult-result__icon" aria-hidden="true">${icon('check')}</span>
+    <p class="consult-result__title">Consulta enviada</p>
+    <p class="consult-result__text" id="consult-summary">Recebemos sua consulta. A equipe vai responder no WhatsApp ou no e-mail com disponibilidade, recursos e valores.</p>
     <div class="consult-result__actions">
-      <a class="btn btn--gold" id="send-whatsapp" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Enviar pelo WhatsApp</a>
-      <a class="btn btn--light" id="send-email" href="mailto:${s.email}">${icon('mail')}Abrir no e-mail</a>
-      <button class="btn btn--light" id="copy-message" type="button">${icon('copy')}Copiar mensagem</button>
-      <button class="btn btn--text" id="edit-message" type="button">Editar dados</button>
+      <a class="btn btn--gold" id="send-whatsapp" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Falar agora no WhatsApp</a>
+      <button class="btn btn--text" id="new-consult" type="button">Enviar outra consulta</button>
     </div>
   </div>`;
 }
 
 export function steps(): SafeHtml {
   return html`<ol class="steps">
-    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Informe data, duração e participantes</strong><p>Quanto mais detalhes, mais rápida a resposta.</p></div></li>
-    <li><span class="steps__n" aria-hidden="true">2</span><div><strong>Revise a mensagem pronta</strong><p>Nada é enviado sem você confirmar.</p></div></li>
-    <li><span class="steps__n" aria-hidden="true">3</span><div><strong>Envie por WhatsApp ou e-mail</strong><p>A equipe confirma disponibilidade, recursos e valores.</p></div></li>
+    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Preencha o formulário</strong><p>Data, horário, participantes e o tipo de atividade.</p></div></li>
+    <li><span class="steps__n" aria-hidden="true">2</span><div><strong>Receba nossa mensagem</strong><p>A equipe responde no WhatsApp ou no e-mail com disponibilidade, recursos e valores.</p></div></li>
+    <li><span class="steps__n" aria-hidden="true">3</span><div><strong>Agende a sala para o seu evento</strong><p>Com tudo combinado, a data fica reservada para você.</p></div></li>
   </ol>`;
 }

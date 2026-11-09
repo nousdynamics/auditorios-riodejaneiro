@@ -139,7 +139,7 @@ ${corporateBand(s)}
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
     <h2 id="consulta-title" class="section__title">Seu encontro, seu próximo passo</h2>
-    <p class="section__lead">Preencha os dados da atividade e prepare uma mensagem para consultar disponibilidade e valores.</p>
+    <p class="section__lead">Conte como vai ser a sua atividade e receba a resposta da equipe com disponibilidade e valores.</p>
     ${steps()}
   </div>
   <div class="booking__form">

@@ -36,6 +36,7 @@ describe('validateLead', () => {
   const today = new Date('2026-11-08T12:00:00Z');
   const base = {
     name: 'Maria',
+    email: 'maria@example.com',
     space: 'Auditório 1',
     activity: 'Aula ou curso',
     eventDate: '2026-12-01',
@@ -51,9 +52,14 @@ describe('validateLead', () => {
     expect(lead.people).toBe(30);
   });
 
+  it('exige e-mail válido', () => {
+    expect(fieldsOf(() => validateLead({ ...base, email: '' }, today)).email).toBe('Informe seu e-mail.');
+    expect(fieldsOf(() => validateLead({ ...base, email: 'maria@' }, today)).email).toBeDefined();
+  });
+
   it('aponta os campos obrigatórios', () => {
     const fields = fieldsOf(() => validateLead({ channel: 'formulario' }, today));
-    expect(Object.keys(fields)).toEqual(expect.arrayContaining(['name', 'space', 'eventDate', 'people', 'schedule']));
+    expect(Object.keys(fields)).toEqual(expect.arrayContaining(['name', 'email', 'space', 'eventDate', 'people', 'schedule']));
   });
 
   it('recusa data no passado', () => {

@@ -1591,6 +1591,12 @@ p {
   font-size: 0.92rem;
   color: #b42318;
 }
+.consult__status a,
+.consult__note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .consult__status:empty {
   display: none;
 }
@@ -1602,16 +1608,33 @@ p {
   font-family: var(--serif);
   font-size: var(--fs-lg);
   color: var(--ink);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
-.consult-result__message {
-  white-space: pre-wrap;
-  font: 0.95rem/1.6 var(--sans);
-  background: var(--mist);
-  border-radius: 12px;
-  padding: 1.1rem 1.2rem;
-  margin: 0 0 1.25rem;
-  border-left: 3px solid var(--gold);
+.consult-result__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--gold);
+  margin-bottom: 1.1rem;
+  animation: pop-in 0.5s var(--ease) both 0.1s;
+}
+.consult-result__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.consult-result__text {
+  color: var(--muted);
+  max-width: 46ch;
+  margin: 0 0 1.5rem;
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
 }
 .consult-result__actions {
   display: flex;

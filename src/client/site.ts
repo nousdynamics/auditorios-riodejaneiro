@@ -289,7 +289,7 @@ function consultForm(): void {
   const form = $<HTMLFormElement>('#consult-form');
   if (!form) return;
   const result = $('#consult-result')!;
-  const messageEl = $('#consult-message')!;
+  const summary = $('#consult-summary')!;
   const status = $('.consult__status', form)!;
   const fields = form.elements as FormFields;
   const brand = form.dataset.brand ?? '';
@@ -329,7 +329,7 @@ function consultForm(): void {
     if (!result.hidden) showForm();
     // foca o primeiro campo vazio depois da rolagem
     setTimeout(() => {
-      const empty = ['name', 'eventDate', 'people', 'schedule'].map((n) => fields[n]).find((f) => f && !f.value);
+      const empty = ['name', 'email', 'eventDate', 'people', 'schedule'].map((n) => fields[n]).find((f) => f && !f.value);
       empty?.focus({ preventScroll: true });
     }, reducedMotion ? 0 : 650);
   });
@@ -338,14 +338,15 @@ function consultForm(): void {
     result.hidden = true;
     form.hidden = false;
   };
-  $('#edit-message')?.addEventListener('click', () => {
+  $('#new-consult')?.addEventListener('click', () => {
     showForm();
-    fields.name?.focus();
+    fields.eventDate?.focus();
   });
 
   const clearErrors = () => {
     $$('.field.is-invalid', form).forEach((f) => f.classList.remove('is-invalid'));
     $$('.field__error', form).forEach((e) => e.remove());
+    $$('[aria-invalid]', form).forEach((e) => e.removeAttribute('aria-invalid'));
     status.textContent = '';
   };
   const markError = (name: string, msg: string) => {
@@ -361,17 +362,30 @@ function consultForm(): void {
     el.setAttribute('aria-describedby', p.id);
     wrap.append(p);
   };
+  /** Erro de envio com atalho para o WhatsApp, para a consulta não se perder. */
+  const sendFailed = (msg: string, waHref: string) => {
+    status.textContent = `${msg} `;
+    const a = document.createElement('a');
+    a.href = waHref;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Falar com a equipe no WhatsApp';
+    status.append(a);
+  };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    const email = (data.email ?? '').trim();
     const errors: Record<string, string> = {};
     if ((data.name ?? '').trim().length < 2) errors.name = 'Informe seu nome.';
+    if (!email) errors.email = 'Informe seu e-mail.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
+    if (data.phone && data.phone.replace(/\D/g, '').length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
     if (!data.eventDate) errors.eventDate = 'Escolha a data pretendida.';
     if (!data.people || Number(data.people) < 1) errors.people = 'Informe quantas pessoas vão participar.';
     if (!(data.schedule ?? '').trim()) errors.schedule = 'Informe o horário e a duração.';
-    if (data.phone && data.phone.replace(/\D/g, '').length < 10) errors.phone = 'Inclua o DDD no telefone.';
     if (Object.keys(errors).length) {
       Object.entries(errors).forEach(([k, v]) => markError(k, v));
       status.textContent = 'Revise os campos destacados.';
@@ -379,40 +393,31 @@ function consultForm(): void {
       return;
     }
 
+    // Texto pronto para quem quiser falar já no WhatsApp (sucesso ou falha no envio)
     const message = [
-      `Olá! Gostaria de consultar a locação de um espaço da ${brand}.`,
+      `Olá! Acabei de enviar uma consulta pelo site da ${brand}.`,
       '',
       `Espaço: ${data.space}`,
       `Nome: ${data.name.trim()}`,
-      data.phone ? `Telefone: ${data.phone}` : '',
       `Atividade: ${data.activity}`,
       `Data: ${formatDateBr(data.eventDate)}`,
       `Participantes: ${data.people}`,
-      `Modalidade: ${data.modality}`,
       `Horário e duração: ${data.schedule.trim()}`,
-      data.details?.trim() ? `Necessidades: ${data.details.trim()}` : '',
-      '',
-      'Podem me informar disponibilidade, recursos e valores?',
-    ]
-      .filter((l, i, arr) => l !== '' || arr[i - 1] !== '')
-      .join('\n');
-
-    messageEl.textContent = message;
-    const wa = $<HTMLAnchorElement>('#send-whatsapp')!;
-    wa.href = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(message)}`;
-    const mail = $<HTMLAnchorElement>('#send-email')!;
-    mail.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(`Consulta de locação — ${data.space}`)}&body=${encodeURIComponent(message)}`;
+    ].join('\n');
+    const waHref = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(message)}`;
 
     const button = $<HTMLButtonElement>('button[type="submit"]', form)!;
-    button.disabled = true;
     const label = button.textContent;
-    button.textContent = 'Preparando…';
+    button.disabled = true;
+    button.textContent = 'Enviando…';
+    let sent = false;
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          email,
           people: Number(data.people),
           channel: 'formulario',
           utm: readUtm(),
@@ -420,22 +425,31 @@ function consultForm(): void {
           elapsedMs: Math.round(performance.now() - startedAt),
         }),
       });
-      if (!res.ok) {
+      if (res.ok) sent = true;
+      else {
         const body = (await res.json().catch(() => ({}))) as { error?: string; fields?: Record<string, string> };
         if (res.status === 422 && body.fields) {
           Object.entries(body.fields).forEach(([k, v]) => markError(k, v));
           status.textContent = body.error ?? 'Revise os campos destacados.';
+          fields[Object.keys(body.fields)[0]]?.focus();
           return;
         }
-        // Falha ao registrar não impede o envio: a mensagem segue pelo WhatsApp/e-mail.
-        console.warn('Consulta não registrada', res.status, body.error);
+        sendFailed(body.error ?? 'Não foi possível enviar agora. Tente de novo em instantes.', waHref);
       }
-    } catch (err) {
-      console.warn('Consulta não registrada (sem conexão)', err);
+    } catch {
+      sendFailed('Sem conexão no momento. Confira a internet e tente de novo.', waHref);
     } finally {
       button.disabled = false;
       button.textContent = label;
     }
+    if (!sent) return;
+
+    const firstName = data.name.trim().split(/\s+/)[0];
+    const when = formatDateBr(data.eventDate);
+    const about = data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
+    const channels = data.phone ? `no WhatsApp ou no e-mail ${email}` : `no e-mail ${email}`;
+    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder ${channels} com disponibilidade, recursos e valores (${about}).`;
+    $<HTMLAnchorElement>('#send-whatsapp')!.href = waHref;
 
     try {
       sessionStorage.removeItem(DRAFT_KEY);
@@ -446,20 +460,6 @@ function consultForm(): void {
     result.hidden = false;
     result.focus({ preventScroll: true });
     result.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'center' });
-  });
-
-  $('#copy-message')?.addEventListener('click', async (e) => {
-    const btn = e.currentTarget as HTMLButtonElement;
-    try {
-      await navigator.clipboard.writeText(messageEl.textContent ?? '');
-      btn.lastChild!.textContent = 'Mensagem copiada';
-    } catch {
-      const range = document.createRange();
-      range.selectNodeContents(messageEl);
-      getSelection()?.removeAllRanges();
-      getSelection()?.addRange(range);
-      btn.lastChild!.textContent = 'Texto selecionado: copie com Ctrl+C';
-    }
   });
 }
 

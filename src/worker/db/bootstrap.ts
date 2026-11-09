@@ -1,9 +1,27 @@
 import schemaSql from '../../../migrations/0001_schema.sql';
 import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
 
-/** Aumente quando adicionar um novo arquivo em migrations/ e inclua-o em MIGRATIONS. */
-export const SCHEMA_VERSION = '1';
+/**
+ * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
+ * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
+ */
+export const SCHEMA_VERSION = '2';
 const MIGRATIONS = [schemaSql];
+
+/**
+ * Correções de texto do conteúdo inicial em bancos que já existem. Cada patch só troca o
+ * texto se ele ainda estiver igual ao original, para não sobrescrever edições do painel.
+ */
+const CONTENT_PATCHES: { table: 'faqs'; id: string; column: 'answer'; from: string; to: string }[] = [
+  {
+    // v2: o formulário passou a enviar a consulta direto (sem mensagem para revisar)
+    table: 'faqs',
+    id: 'faq-confirmar-reserva',
+    column: 'answer',
+    from: 'A mensagem preparada no site é uma consulta inicial. A reserva só é confirmada depois que a equipe verifica a data, o horário e as condições de locação e responde a você.',
+    to: 'Envie a consulta pelo formulário do site. A equipe verifica a data, o horário e as condições de locação e responde no WhatsApp ou no e-mail. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
+  },
+];
 
 let ready: Promise<void> | null = null;
 
@@ -103,6 +121,14 @@ async function bootstrap(db: D1Database): Promise<void> {
       db.prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?,?,?)').bind('seeded_at', now, now),
     );
     await db.batch(stmts);
+  }
+
+  if (CONTENT_PATCHES.length) {
+    await db.batch(
+      CONTENT_PATCHES.map((p) =>
+        db.prepare(`UPDATE ${p.table} SET ${p.column} = ?, updated_at = ? WHERE id = ? AND ${p.column} = ?`).bind(p.to, now, p.id, p.from),
+      ),
+    );
   }
 
   await db

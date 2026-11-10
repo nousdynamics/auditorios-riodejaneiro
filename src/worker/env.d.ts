@@ -6,6 +6,8 @@ interface Env {
   MEDIA: R2Bucket;
   /** URL canônica (https://dominio.com.br). Vazio = origem da requisição. */
   SITE_URL?: string;
+  /** Contêiner do Google Tag Manager (GTM-XXXX). Vazio = sem GTM. Nunca carrega em localhost. */
+  GTM_ID?: string;
   /** Segredo que libera a criação do primeiro administrador em /admin/setup. */
   SETUP_TOKEN?: string;
   /** Webhook do n8n que recebe uma cópia de cada consulta (segredo). */

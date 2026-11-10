@@ -27,6 +27,32 @@ const CSP_SITE = [
   'upgrade-insecure-requests',
 ].join('; ');
 
+/**
+ * CSP das páginas do site. O nonce (novo a cada resposta) libera os scripts da própria
+ * página e, com 'strict-dynamic', o que eles carregarem — inclusive as tags do Google Tag
+ * Manager (GA4, Google Ads, Meta...), sem precisar listar domínio por domínio. Script
+ * injetado sem o nonce continua bloqueado. 'unsafe-eval' é exigido pelas variáveis
+ * JavaScript personalizadas do GTM; `https:` e 'unsafe-inline' só valem em navegadores
+ * antigos (os atuais ignoram ambos quando há nonce + 'strict-dynamic').
+ */
+export function siteCsp(nonce: string): string {
+  return [
+    "default-src 'self'",
+    "img-src 'self' data: blob: https:",
+    "media-src 'self'",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline' https://tagmanager.google.com https://fonts.googleapis.com",
+    `script-src 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' 'inline-speculation-rules' https: 'unsafe-inline'`,
+    "connect-src 'self' https:",
+    'frame-src https:',
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+    "object-src 'none'",
+    'upgrade-insecure-requests',
+  ].join('; ');
+}
+
 export function securityHeaders(headers: Headers, { csp = CSP_SITE }: { csp?: string } = {}): Headers {
   headers.set('Content-Security-Policy', csp);
   headers.set('X-Content-Type-Options', 'nosniff');
@@ -40,7 +66,7 @@ export function securityHeaders(headers: Headers, { csp = CSP_SITE }: { csp?: st
 
 export function htmlResponse(
   body: SafeHtml | string,
-  init: { status?: number; cacheSeconds?: number; noindex?: boolean; headers?: HeadersInit } = {},
+  init: { status?: number; cacheSeconds?: number; noindex?: boolean; headers?: HeadersInit; csp?: string } = {},
 ): Response {
   const headers = new Headers(init.headers);
   headers.set('Content-Type', 'text/html; charset=utf-8');
@@ -50,7 +76,7 @@ export function htmlResponse(
     init.cacheSeconds ? `public, max-age=0, s-maxage=${init.cacheSeconds}, stale-while-revalidate=600` : 'no-store',
   );
   if (init.noindex) headers.set('X-Robots-Tag', 'noindex, nofollow');
-  securityHeaders(headers);
+  securityHeaders(headers, init.csp ? { csp: init.csp } : {});
   return new Response(String(body), { status: init.status ?? 200, headers });
 }
 

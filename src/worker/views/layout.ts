@@ -22,6 +22,10 @@ export interface RenderCtx {
   base: string;
   settings: SiteSettings;
   path: string;
+  /** Nonce da CSP desta resposta (vai em todo <script> executável). */
+  nonce: string;
+  /** Contêiner do Google Tag Manager; ausente = sem GTM. */
+  gtmId?: string;
 }
 
 const NAV = [
@@ -35,6 +39,33 @@ const SPECULATION = {
   prefetch: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: ['/admin*', '/api/*', '/media/*', '/*.xml', '/*.txt'] } }] }, eagerness: 'moderate' }],
   prerender: [{ where: { href_matches: ['/auditorios', '/auditorios/*', '/pacote-corporativo'] }, eagerness: 'moderate' }],
 };
+
+/**
+ * Google Tag Manager. Mesmo snippet do contêiner (dataLayer + gtag('js')), com duas
+ * diferenças: o gtm.js recebe o nonce da CSP (o GTM repassa às tags HTML personalizadas)
+ * e, em páginas pré-renderizadas pelas Speculation Rules, só carrega quando a pessoa
+ * abre a página — evita contar visitas que não aconteceram.
+ */
+function gtmHead(id: string, nonce: string): SafeHtml {
+  const src = `https://www.googletagmanager.com/gtm.js?id=${id}`;
+  return raw(`<link rel="preconnect" href="https://www.googletagmanager.com">
+<script nonce="${nonce}">
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+(function(){
+  var load = function(){
+    gtag('js', new Date());
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = '${src}';
+    s.nonce = '${nonce}';
+    document.head.appendChild(s);
+  };
+  if (document.prerendering) document.addEventListener('prerenderingchange', load, { once: true });
+  else load();
+})();
+</script>`);
+}
 
 export function brandMark(cls = 'brand__mark'): SafeHtml {
   return raw(`<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="currentColor"/><rect x="13" y="13" width="38" height="7" rx="2" fill="#E5BB65"/><g fill="#2BB3BD">${[0, 1, 2]
@@ -52,6 +83,7 @@ export function layout(ctx: RenderCtx, meta: PageMeta, body: SafeHtml): SafeHtml
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+${ctx.gtmId ? gtmHead(ctx.gtmId, ctx.nonce) : ''}
 <title>${fullTitle}</title>
 <meta name="description" content="${meta.description}">
 <link rel="canonical" href="${canonical}">
@@ -66,7 +98,7 @@ ${s.address.lat != null && s.address.lng != null ? html`<meta name="geo.position
 <link rel="preload" href="/assets/fonts/newsreader-var.woff2" as="font" type="font/woff2" crossorigin>
 ${meta.head ?? ''}
 <link rel="stylesheet" href="${ASSETS.siteCss}">
-<link rel="modulepreload" href="${ASSETS.siteJs}">
+<link rel="modulepreload" href="${ASSETS.siteJs}" nonce="${ctx.nonce}">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -85,8 +117,8 @@ ${meta.head ?? ''}
 <meta name="twitter:description" content="${meta.description}">
 <meta name="twitter:image" content="${image}">
 ${(meta.jsonLd ?? []).map((d) => html`<script type="application/ld+json">${jsonScript(d)}</script>`)}
-<script type="speculationrules">${jsonScript(SPECULATION)}</script>
-<script type="module" src="${ASSETS.siteJs}"></script>
+<script type="speculationrules" nonce="${ctx.nonce}">${jsonScript(SPECULATION)}</script>
+<script type="module" src="${ASSETS.siteJs}" nonce="${ctx.nonce}"></script>
 </head>
 <body class="${meta.bodyClass ?? ''}">
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>

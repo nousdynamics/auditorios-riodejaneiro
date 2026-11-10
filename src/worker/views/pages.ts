@@ -409,11 +409,11 @@ export function privacyPage(ctx: RenderCtx): SafeHtml {
 </section>
 <section class="section prose prose--page">
   <h2>Quais dados coletamos</h2>
-  <p>Quando você prepara uma consulta, guardamos o que foi preenchido no formulário: nome, telefone (opcional), espaço de interesse, atividade, data, número de participantes, modalidade, horário e detalhes. Também registramos a página de origem e parâmetros de campanha (UTM), quando existirem.</p>
+  <p>Quando você envia uma consulta, guardamos o que foi preenchido no formulário: nome, e-mail, WhatsApp, espaço de interesse, atividade, data, número de participantes, modalidade, horário e detalhes. Também registramos a página de origem e parâmetros de campanha (UTM), quando existirem.</p>
   <h2>Para que usamos</h2>
   <p>Exclusivamente para responder à sua consulta sobre a locação de auditórios e combinar as condições da reserva. Não vendemos nem compartilhamos seus dados para fins de publicidade.</p>
   <h2>Cookies e rastreamento</h2>
-  <p>O site não usa cookies de rastreamento nem de publicidade. O mapa do Google só é carregado se você clicar em “Carregar mapa interativo”; a partir daí, valem as políticas do Google.</p>
+  <p>Usamos o Google Tag Manager para medir as visitas e o resultado dos nossos anúncios. As ferramentas carregadas por ele (como Google Analytics, Google Ads e Meta) podem usar cookies e registrar dados de navegação, como páginas vistas, origem da visita e tipo de dispositivo. Você pode bloquear ou apagar cookies nas configurações do navegador. O mapa do Google só é carregado se você clicar em “Carregar mapa interativo”; a partir daí, valem as políticas do Google.</p>
   <h2>Por quanto tempo guardamos</h2>
   <p>As consultas ficam guardadas pelo tempo necessário ao atendimento e ao histórico comercial, e podem ser excluídas a qualquer momento a seu pedido.</p>
   <h2>Seus direitos (LGPD)</h2>

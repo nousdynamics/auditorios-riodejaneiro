@@ -6,7 +6,8 @@ import { handleAdminApi } from './api/admin';
 import { handleLead } from './api/public';
 import { ensureDatabase } from './db/bootstrap';
 import { getSiteData } from './data';
-import { htmlResponse, json, redirect, securityHeaders, text } from './lib/http';
+import { htmlResponse, json, redirect, securityHeaders, siteCsp, text } from './lib/http';
+import { randomToken } from './lib/crypto';
 import { serveMedia, serveVideo } from './media';
 import { llmsTxt, robotsTxt, sitemapXml } from './seo/files';
 import { homePage } from './views/home';
@@ -87,9 +88,12 @@ export default {
     if (path === '/llms-full.txt') return text(llmsTxt(base, data, true), 'text/markdown', 3600);
 
     // ---------------- Páginas ----------------
-    const render: RenderCtx = { base, settings: data.settings, path };
+    const nonce = randomToken(16);
+    const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
+    const gtmId = env.GTM_ID && /^GTM-[A-Z0-9]{4,12}$/.test(env.GTM_ID) && !isLocal ? env.GTM_ID : undefined;
+    const render: RenderCtx = { base, settings: data.settings, path, nonce, gtmId };
     const page = (body: ReturnType<typeof homePage>, status = 200) =>
-      htmlResponse(body, { status, cacheSeconds: status === 200 ? 60 : 0 });
+      htmlResponse(body, { status, cacheSeconds: status === 200 ? 60 : 0, csp: siteCsp(nonce) });
 
     if (path === '/') return page(homePage(render, data));
     if (path === '/auditorios') return page(roomsPage(render, data));

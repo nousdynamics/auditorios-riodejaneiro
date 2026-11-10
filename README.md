@@ -97,6 +97,12 @@ npm run media       # regenera mídia a partir de media-src/ (precisa de ffmpeg 
 
 **Alternativa:** `.github/workflows/deploy.yml` publica via GitHub Actions quando os segredos `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` existem no repositório. Use um dos dois caminhos, não ambos. O `ci.yml` roda tipos, testes e um deploy de teste (`--dry-run`) em todo push e PR.
 
+## Google Tag Manager
+
+O contêiner fica na variável `GTM_ID` do `wrangler.jsonc` (hoje `GTM-5GZWSDV7`; vazio = sem GTM). Ele não carrega em `localhost`, para testes locais não contarem como visita, e, em páginas pré-renderizadas pelas Speculation Rules, só carrega quando a pessoa abre a página.
+
+A CSP das páginas usa um nonce por resposta com `'strict-dynamic'`: tudo o que o GTM carregar (GA4, Google Ads, Meta, tags HTML personalizadas) é liberado sem precisar listar domínios, e script injetado sem o nonce continua bloqueado. Ver `siteCsp()` em `src/worker/lib/http.ts`.
+
 ## Webhooks de consultas (n8n + Omini Traffic Engine)
 
 Cada consulta enviada pelo site é gravada no D1 (aparece em **/admin → Consultas**) e depois copiada em segundo plano, via `POST` JSON, para cada destino configurado:

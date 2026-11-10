@@ -29,7 +29,9 @@
 
   "vars": {
     // URL canônica do site (sem barra no final). Vazio = usa o domínio da requisição.
-    "SITE_URL": ""
+    "SITE_URL": "",
+    // Google Tag Manager (público: aparece no HTML). Vazio = sem GTM. Não carrega em localhost.
+    "GTM_ID": "GTM-5GZWSDV7"
   },
 
   // Sem database_id / bucket próprio: o `wrangler deploy` cria os recursos na primeira vez

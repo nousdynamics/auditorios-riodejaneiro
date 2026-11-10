@@ -43,3 +43,16 @@ describe('splitSql', () => {
     expect(splitSql(sql)).toEqual(['CREATE TABLE a (x INT)', 'CREATE INDEX i ON a (x)']);
   });
 });
+
+describe('siteCsp', () => {
+  it('libera só scripts com o nonce da resposta (e o que eles carregarem)', async () => {
+    const { siteCsp } = await import('../src/worker/lib/http');
+    const csp = siteCsp('abc123');
+    const scriptSrc = csp.split('; ').find((d) => d.startsWith('script-src'))!;
+    expect(scriptSrc).toContain("'nonce-abc123'");
+    expect(scriptSrc).toContain("'strict-dynamic'");
+    expect(scriptSrc).not.toContain("'self'");
+    expect(csp).toContain("object-src 'none'");
+    expect(csp).toContain("frame-ancestors 'self'");
+  });
+});

@@ -12,6 +12,7 @@ import {
   breadcrumb,
   capacityText,
   consultForm,
+  corporateWhatsappMessage,
   faqList,
   formatBRL,
   fullAddress,
@@ -22,6 +23,7 @@ import {
   preloadPhoto,
   priceList,
   roomCard,
+  roomWhatsappMessage,
   steps,
 } from './ui';
 
@@ -294,6 +296,7 @@ ${locationSection(s)}`;
       jsonLd: [jsonLd],
       head: cover ? preloadPhoto(cover, sizes) : undefined,
       bodyClass: 'page-room',
+      whatsappMessage: roomWhatsappMessage(r, base + path),
     },
     body,
   );
@@ -388,7 +391,19 @@ ${finalCta(s)}`;
     ]),
     corpFaqs.length ? faqPage(base, path, corpFaqs) : [],
   );
-  return layout(ctx, { title, description, path, image: cover ? absoluteImage(cover, base) : undefined, jsonLd: [jsonLd], bodyClass: 'page-corporate' }, body);
+  return layout(
+    ctx,
+    {
+      title,
+      description,
+      path,
+      image: cover ? absoluteImage(cover, base) : undefined,
+      jsonLd: [jsonLd],
+      bodyClass: 'page-corporate',
+      whatsappMessage: corporateWhatsappMessage(base + path),
+    },
+    body,
+  );
 }
 
 // ---------------------------------------------------------------------------

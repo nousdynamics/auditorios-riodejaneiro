@@ -27,6 +27,19 @@ const ADMIN_CSP = [
   "object-src 'none'",
 ].join('; ');
 
+/** true = dentro do limite (ou limitador ausente, como em testes). */
+async function withinLimit(limiter: RateLimit | undefined, key: string): Promise<boolean> {
+  if (!limiter) return true;
+  try {
+    return (await limiter.limit({ key })).success;
+  } catch {
+    return true; // falha do limitador nunca derruba o site
+  }
+}
+
+const tooManyRequests = () =>
+  json({ error: 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.' }, { status: 429, headers: { 'Retry-After': '60' } });
+
 function siteBase(env: Env, url: URL): string {
   return (env.SITE_URL || url.origin).replace(/\/+$/, '');
 }
@@ -45,6 +58,14 @@ export default {
       return redirect(path.toLowerCase() + url.search, 301);
     }
 
+    // Domínio único: o endereço *.workers.dev não passa pelas regras de segurança do domínio
+    // (WAF, bots, Access). Páginas redirecionam; envios e API são recusados.
+    const canonical = env.SITE_URL ? new URL(env.SITE_URL) : null;
+    if (canonical && url.hostname.endsWith('.workers.dev') && url.host !== canonical.host) {
+      if (method === 'GET' || method === 'HEAD') return redirect(canonical.origin + path + url.search, 301);
+      return json({ error: `Use ${canonical.origin}.` }, { status: 403 });
+    }
+
     if (path.startsWith('/assets/video/')) return serveVideo(request, env);
 
     try {
@@ -55,9 +76,16 @@ export default {
     }
 
     // ---------------- API ----------------
-    if (path.startsWith('/api/admin')) return handleAdminApi(request, env, url);
+    const ip = request.headers.get('CF-Connecting-IP') ?? 'local';
+    if (path.startsWith('/api/admin')) {
+      const sensitive = method === 'POST' && (path === '/api/admin/login' || path === '/api/admin/setup' || path === '/api/admin/password');
+      if (sensitive && !(await withinLimit(env.LOGIN_LIMIT, `${path}:${ip}`))) return tooManyRequests();
+      if (!(await withinLimit(env.ADMIN_API_LIMIT, ip))) return tooManyRequests();
+      return handleAdminApi(request, env, url);
+    }
     if (path === '/api/leads') {
       if (method !== 'POST') return json({ error: 'Use POST.' }, { status: 405, headers: { Allow: 'POST' } });
+      if (!(await withinLimit(env.LEADS_LIMIT, ip))) return tooManyRequests();
       return handleLead(request, env, ctx, siteBase(env, url));
     }
     if (path === '/api/health') {

@@ -2,6 +2,10 @@
 
 interface Env {
   ASSETS: Fetcher;
+  /** Limites por IP na borda (Workers Rate Limiting). Ausentes = sem limite extra. */
+  LOGIN_LIMIT?: RateLimit;
+  ADMIN_API_LIMIT?: RateLimit;
+  LEADS_LIMIT?: RateLimit;
   DB: D1Database;
   MEDIA: R2Bucket;
   /** URL canônica (https://dominio.com.br). Vazio = origem da requisição. */

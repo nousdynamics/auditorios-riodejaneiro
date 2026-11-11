@@ -181,7 +181,6 @@ function footer(ctx: RenderCtx): SafeHtml {
       <h2 class="site-footer__h">Contato</h2>
       <ul class="site-footer__list">
         <li>${icon('whatsapp')}${phoneDisplay(s.whatsapp)}</li>
-        <li><a href="mailto:${s.email}">${icon('mail')}${s.email}</a></li>
         ${s.openingHours ? html`<li>${icon('clock')}${s.openingHours}</li>` : ''}
         ${socials.map(([k, v]) => html`<li><a href="${v}" target="_blank" rel="noopener me">${k.charAt(0).toUpperCase() + k.slice(1)}</a></li>`)}
       </ul>

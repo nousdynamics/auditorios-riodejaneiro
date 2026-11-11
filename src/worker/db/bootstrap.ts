@@ -1,11 +1,13 @@
 import schemaSql from '../../../migrations/0001_schema.sql';
+import { INITIAL_ADMIN } from './initial-admin';
+import { createUser, countUsers } from './repo';
 import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
 
 /**
  * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
  * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
  */
-export const SCHEMA_VERSION = '3';
+export const SCHEMA_VERSION = '4';
 const MIGRATIONS = [schemaSql];
 
 /**
@@ -171,6 +173,11 @@ async function bootstrap(db: D1Database): Promise<void> {
   }
 
   await rebrandV3(db, now);
+
+  // v4: primeiro administrador com senha temporária (só se o banco ainda não tem usuários)
+  if ((await countUsers(db)) === 0) {
+    await createUser(db, { email: INITIAL_ADMIN.email, name: INITIAL_ADMIN.name, passwordHash: INITIAL_ADMIN.passwordHash, role: 'admin' });
+  }
 
   await db
     .prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?,?,?)')

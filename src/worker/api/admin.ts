@@ -5,6 +5,7 @@
 import { LEAD_STATUS } from '../../shared/catalog';
 import type { DashboardData, Room } from '../../shared/types';
 import { currentUser, login, logout, requireUser } from '../auth';
+import { isTemporaryPassword } from '../db/initial-admin';
 import * as repo from '../db/repo';
 import { invalidateSiteData } from '../data';
 import { hashPassword, verifyPassword } from '../lib/crypto';
@@ -38,7 +39,7 @@ async function route(method: string, path: string, ctx: Ctx): Promise<Response> 
     const body = await readJson<{ email?: string; password?: string }>(request, 4000);
     if (!body.email || !body.password) throw new HttpError(422, 'Informe e-mail e senha.');
     const { user, cookie } = await login(request, env, body.email, body.password);
-    return json({ user: repo.publicUser(user) }, { headers: { 'Set-Cookie': cookie } });
+    return json({ user: clientUser(user) }, { headers: { 'Set-Cookie': cookie } });
   }
   if (path === '/logout' && method === 'POST') {
     return json({ ok: true }, { headers: { 'Set-Cookie': await logout(request, env) } });
@@ -49,10 +50,14 @@ async function route(method: string, path: string, ctx: Ctx): Promise<Response> 
     const needsSetup = !user && (await repo.countUsers(env.DB)) === 0;
     // 200 mesmo sem sessão: o painel decide entre login e configuração inicial
     if (!user) return json({ user: null, needsSetup, setupEnabled: needsSetup && Boolean(env.SETUP_TOKEN) });
-    return json({ user: repo.publicUser(user) });
+    return json({ user: clientUser(user) });
   }
 
   const user = await requireUser(request, env);
+  // Senha temporária: até trocar, só a troca de senha fica liberada
+  if (isTemporaryPassword(user.passwordHash) && path !== '/password') {
+    throw new HttpError(403, 'Troque a senha temporária para continuar.');
+  }
   const log = (action: string, target = '', meta: Record<string, unknown> = {}) =>
     repo.audit(env.DB, { userId: user.id, userEmail: user.email, action, target, meta, ip: ctx.ip });
 
@@ -224,6 +229,7 @@ async function route(method: string, path: string, ctx: Ctx): Promise<Response> 
       throw new HttpError(422, 'Senha atual incorreta.', { current: 'Senha atual incorreta.' });
     }
     const next = validatePassword(body.next, 'next');
+    if (body.next === body.current) throw new HttpError(422, 'Escolha uma senha diferente da atual.', { next: 'Escolha uma senha diferente da atual.' });
     await repo.updateUser(env.DB, user.id, { passwordHash: await hashPassword(next) });
     await log('senha_alterada');
     // updateUser já encerrou todas as sessões do usuário; limpa também o cookie
@@ -301,4 +307,9 @@ function toCsv(leads: Awaited<ReturnType<typeof repo.allLeads>>): string {
   };
   const rows = leads.map((l) => cols.map((c) => cell(c === 'status' ? LEAD_STATUS[l.status] : l[c])).join(';'));
   return '﻿' + [head.map(cell).join(';'), ...rows].join('\r\n');
+}
+
+/** Usuário como o painel recebe: sem o hash e com o aviso de senha temporária. */
+function clientUser(u: Parameters<typeof repo.publicUser>[0]) {
+  return { ...repo.publicUser(u), mustChangePassword: isTemporaryPassword(u.passwordHash) };
 }

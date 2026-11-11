@@ -12,7 +12,10 @@ export function accountView(ctx: ViewCtx): void {
   const form = h(
     'form',
     { class: 'panel stack narrow', novalidate: true },
-    h('h2', null, 'Alterar senha'),
+    h('h2', null, user?.mustChangePassword ? 'Defina sua senha' : 'Alterar senha'),
+    user?.mustChangePassword
+      ? h('p', { class: 'notice' }, 'Você entrou com uma senha temporária. Escolha uma senha nova para liberar o painel. Em "Senha atual", use a temporária.')
+      : null,
     field('Senha atual', current, { name: 'current' }),
     field('Nova senha', next, { name: 'next', hint: 'Use pelo menos 10 caracteres.' }),
     field('Repita a nova senha', again, { name: 'again' }),

@@ -201,6 +201,8 @@ export interface AdminUser {
   isActive: boolean;
   createdAt: string;
   lastLoginAt: string | null;
+  /** Entrou com a senha temporária: o painel só libera a troca de senha. */
+  mustChangePassword?: boolean;
 }
 
 export interface AuditEntry {

@@ -56,7 +56,7 @@ function showLogin(notice?: string): void {
 function startApp(user: AdminUser): void {
   router?.dispose();
   setUser(user);
-  document.title = 'Painel · InterFISIO';
+  document.title = 'Painel · Auditório Rio de Janeiro';
   if (!location.hash) location.hash = '#/';
   const main = h('main', { id: 'main', class: 'content', tabindex: '-1' });
   const nav = h('nav', { class: 'nav', 'aria-label': 'Principal' });
@@ -94,14 +94,14 @@ function startApp(user: AdminUser): void {
     menuBtn.setAttribute('aria-expanded', 'false');
   };
   side.append(
-    h('div', { class: 'brand' }, h('strong', null, 'InterFISIO'), h('span', null, ' · Painel')),
+    h('div', { class: 'brand' }, h('strong', null, 'Auditório Rio de Janeiro'), h('span', null, ' · Painel')),
     nav,
     h('div', { class: 'side-foot' }, h('p', { class: 'who' }, user.name, h('small', null, user.role === 'admin' ? 'Administrador' : 'Editor')), logout),
   );
   mount(
     app,
     h('a', { class: 'skip', href: '#main', onclick: (e: Event) => { e.preventDefault(); main.focus(); } }, 'Ir para o conteúdo'),
-    h('header', { class: 'topbar' }, menuBtn, h('span', { class: 'brand-sm' }, 'InterFISIO · Painel')),
+    h('header', { class: 'topbar' }, menuBtn, h('span', { class: 'brand-sm' }, 'Auditório RJ · Painel')),
     side,
     main,
   );

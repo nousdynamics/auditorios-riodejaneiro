@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
  * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
  * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
  */
-export const SCHEMA_VERSION = '2';
+export const SCHEMA_VERSION = '3';
 const MIGRATIONS = [schemaSql];
 
 /**
@@ -22,6 +22,45 @@ const CONTENT_PATCHES: { table: 'faqs'; id: string; column: 'answer'; from: stri
     to: 'Envie a consulta pelo formulário do site. A equipe verifica a data, o horário e as condições de locação e responde no WhatsApp ou no e-mail. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
   },
 ];
+
+/**
+ * v3: a marca do site passou a ser "Auditório Rio de Janeiro". Troca só os campos das
+ * configurações que ainda têm o texto inicial (edições feitas no painel ficam como estão)
+ * e tira "da InterFISIO" do texto alternativo das fotos iniciais.
+ */
+const REBRAND_V3: { path: string[]; from: string; to: string }[] = [
+  { path: ['brandName'], from: 'InterFISIO', to: DEFAULT_SETTINGS.brandName },
+  { path: ['brandLine'], from: 'Locação de auditórios no Rio de Janeiro', to: DEFAULT_SETTINGS.brandLine },
+  { path: ['whatsappMessage'], from: 'Olá! Gostaria de consultar a locação de um auditório da InterFISIO.', to: DEFAULT_SETTINGS.whatsappMessage },
+  {
+    path: ['hero', 'intro'],
+    from: 'Realize sua próxima aula, curso ou reunião na InterFISIO. Escolha um auditório por hora ou turno, ou consulte o pacote corporativo para locar o andar completo.',
+    to: DEFAULT_SETTINGS.hero.intro,
+  },
+];
+
+async function rebrandV3(db: D1Database, now: string): Promise<void> {
+  const row = await db.prepare("SELECT value FROM settings WHERE key = 'site'").first<{ value: string }>();
+  if (row) {
+    const site = JSON.parse(row.value) as Record<string, unknown>;
+    let changed = false;
+    for (const { path, from, to } of REBRAND_V3) {
+      const parent = path.slice(0, -1).reduce<Record<string, unknown> | undefined>((o, k) => o?.[k] as Record<string, unknown> | undefined, site);
+      const key = path[path.length - 1];
+      if (parent && parent[key] === from) {
+        parent[key] = to;
+        changed = true;
+      }
+    }
+    if (changed) {
+      await db.prepare("UPDATE settings SET value = ?, updated_at = ? WHERE key = 'site'").bind(JSON.stringify(site), now).run();
+    }
+  }
+  await db
+    .prepare("UPDATE rooms SET photos = REPLACE(photos, ' da InterFISIO', ''), updated_at = ? WHERE photos LIKE '%da InterFISIO%'")
+    .bind(now)
+    .run();
+}
 
 let ready: Promise<void> | null = null;
 
@@ -130,6 +169,8 @@ async function bootstrap(db: D1Database): Promise<void> {
       ),
     );
   }
+
+  await rebrandV3(db, now);
 
   await db
     .prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?,?,?)')

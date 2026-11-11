@@ -29,7 +29,7 @@
 
   "vars": {
     // URL canônica do site (sem barra no final). Vazio = usa o domínio da requisição.
-    "SITE_URL": "",
+    "SITE_URL": "https://auditorioriodejaneiro.com.br",
     // Google Tag Manager (público: aparece no HTML). Vazio = sem GTM. Não carrega em localhost.
     "GTM_ID": "GTM-5GZWSDV7"
   },

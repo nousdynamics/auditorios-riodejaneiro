@@ -106,12 +106,12 @@ ${meta.head ?? ''}
 <link rel="alternate" type="text/markdown" title="Resumo para IA (llms.txt)" href="/llms.txt">
 <meta property="og:type" content="${meta.type ?? 'website'}">
 <meta property="og:locale" content="pt_BR">
-<meta property="og:site_name" content="${s.brandName} — Auditórios no Rio de Janeiro">
+<meta property="og:site_name" content="${s.brandName}">
 <meta property="og:title" content="${fullTitle}">
 <meta property="og:description" content="${meta.description}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${image}">
-<meta property="og:image:alt" content="${meta.imageAlt ?? 'Auditório da InterFISIO no Centro do Rio de Janeiro'}">
+<meta property="og:image:alt" content="${meta.imageAlt ?? 'Auditório para locação no Centro do Rio de Janeiro'}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${fullTitle}">
 <meta name="twitter:description" content="${meta.description}">

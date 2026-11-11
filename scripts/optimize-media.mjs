@@ -98,8 +98,8 @@ async function ogImage() {
   <text x="72" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#F2F5F4">Auditórios para cursos</text>
   <text x="72" y="374" font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#F2F5F4">e treinamentos no</text>
   <text x="72" y="448" font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#F2F5F4">Centro do Rio</text>
-  <text x="72" y="540" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="${GOLD}" font-weight="700">InterFISIO</text>
-  <text x="232" y="540" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#C9D8DA">Rua São Bento, 09 — 13º e 14º andares</text>
+  <text x="72" y="530" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="${GOLD}" font-weight="700">Auditório Rio de Janeiro</text>
+  <text x="72" y="572" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#C9D8DA">Rua São Bento, 09 — 13º e 14º andares · auditorioriodejaneiro.com.br</text>
 </svg>`);
   const out = join(PUBLIC, 'og-image.jpg');
   await sharp(photo).composite([{ input: overlay }]).jpeg({ quality: 82, mozjpeg: true }).toFile(out);
@@ -234,9 +234,12 @@ function fonts() {
   }
 }
 
-await photos();
-await ogImage();
-await icons();
-fonts();
-await video();
+// Uso: node scripts/optimize-media.mjs [photos] [og] [icons] [fonts] [video]  (sem argumentos = tudo)
+const only = process.argv.slice(2);
+const run = (name) => only.length === 0 || only.includes(name);
+if (run('photos')) await photos();
+if (run('og')) await ogImage();
+if (run('icons')) await icons();
+if (run('fonts')) fonts();
+if (run('video')) await video();
 console.log('Pronto.');

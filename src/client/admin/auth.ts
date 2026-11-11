@@ -25,7 +25,7 @@ function shell(title: string, ...body: (Node | null)[]): HTMLElement {
     h(
       'div',
       { class: 'auth-card' },
-      h('p', { class: 'auth-brand' }, 'InterFISIO · Painel'),
+      h('p', { class: 'auth-brand' }, 'Auditório Rio de Janeiro · Painel'),
       h('h1', null, title),
       ...body,
     ),

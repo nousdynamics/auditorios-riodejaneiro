@@ -19,7 +19,7 @@ export function sitemapXml(base: string, data: SiteData): string {
       lastmod: contentDate,
       priority: '1.0',
       changefreq: 'weekly',
-      images: [{ loc: `${base}/og-image.jpg`, title: 'Auditórios da InterFISIO no Centro do Rio' }],
+      images: [{ loc: `${base}/og-image.jpg`, title: 'Auditórios para locação no Centro do Rio de Janeiro' }],
     },
     { loc: `${base}/auditorios`, lastmod: contentDate, priority: '0.9', changefreq: 'weekly' },
     ...data.rooms.map((r) => ({

@@ -1,13 +1,13 @@
 import schemaSql from '../../../migrations/0001_schema.sql';
-import { INITIAL_ADMIN } from './initial-admin';
-import { createUser, countUsers } from './repo';
+import { INITIAL_ADMINS } from './initial-admin';
+import { createUser, findUserByEmail } from './repo';
 import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
 
 /**
  * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
  * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
  */
-export const SCHEMA_VERSION = '4';
+export const SCHEMA_VERSION = '5';
 const MIGRATIONS = [schemaSql];
 
 /**
@@ -174,9 +174,14 @@ async function bootstrap(db: D1Database): Promise<void> {
 
   await rebrandV3(db, now);
 
-  // v4: primeiro administrador com senha temporária (só se o banco ainda não tem usuários)
-  if ((await countUsers(db)) === 0) {
-    await createUser(db, { email: INITIAL_ADMIN.email, name: INITIAL_ADMIN.name, passwordHash: INITIAL_ADMIN.passwordHash, role: 'admin' });
+  // v4/v5: administradores iniciais com senha temporária, cada um criado uma única vez
+  for (const admin of INITIAL_ADMINS) {
+    const key = `initial_admin:${admin.email}`;
+    if (await readMeta(db, key)) continue;
+    if (!(await findUserByEmail(db, admin.email))) {
+      await createUser(db, { email: admin.email, name: admin.name, passwordHash: admin.passwordHash, role: 'admin' });
+    }
+    await db.prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?,?,?)').bind(key, now, now).run();
   }
 
   await db

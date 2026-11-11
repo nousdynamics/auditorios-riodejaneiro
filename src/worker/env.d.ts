@@ -14,7 +14,7 @@ interface Env {
   LEADS_WEBHOOK_URL?: string;
   /** Enviado no header X-Webhook-Secret do webhook do n8n. */
   LEADS_WEBHOOK_SECRET?: string;
-  /** Omini Traffic Engine: POST /webhook/leads/{form} (segredo). */
+  /** Omini Traffic Engine: POST /webhook/leads/{form} (var no wrangler.jsonc). */
   TRAFFIC_LEADS_WEBHOOK_URL?: string;
   /** LEAD_WEBHOOK_SECRET do engine, enviado no campo "web-secret" do corpo. */
   TRAFFIC_LEADS_WEBHOOK_SECRET?: string;

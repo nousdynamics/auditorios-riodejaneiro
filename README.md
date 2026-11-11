@@ -87,10 +87,9 @@ npm run media       # regenera mídia a partir de media-src/ (precisa de ffmpeg 
    npx wrangler secret put SETUP_TOKEN            # libera /admin/setup para criar o 1º admin
    npx wrangler secret put LEADS_WEBHOOK_URL             # webhook do n8n que recebe cada consulta (ver abaixo)
    npx wrangler secret put LEADS_WEBHOOK_SECRET          # opcional: vai no header X-Webhook-Secret
-   npx wrangler secret put TRAFFIC_LEADS_WEBHOOK_URL     # Omini Traffic Engine (/webhook/leads/<formulário>)
-   npx wrangler secret put TRAFFIC_LEADS_WEBHOOK_SECRET  # LEAD_WEBHOOK_SECRET do engine (campo "web-secret")
+   npx wrangler secret put TRAFFIC_LEADS_WEBHOOK_SECRET  # opcional: web-secret do engine, se o formulário passar a exigir
    ```
-   O repositório é público: as URLs dos webhooks ficam **só** nos segredos do Cloudflare, nunca no código.
+   O repositório é público: a URL do n8n fica **só** no segredo do Cloudflare. A do Omini Traffic Engine fica no `wrangler.jsonc` (o engine trata a URL do formulário como pública; a proteção dele é o `web-secret`).
 5. Domínio: em **Settings → Domains & Routes** adicione o domínio e defina a variável `SITE_URL` (ex.: `https://www.seudominio.com.br`) no `wrangler.jsonc`. Ela é usada nas URLs canônicas, no sitemap e no JSON-LD.
 6. Acesse `/admin`, crie o administrador com o `SETUP_TOKEN` e depois **apague o segredo** `SETUP_TOKEN` (o setup só funciona com o banco sem usuários, mas não há motivo para deixá-lo ativo).
    Alternativa pelo terminal: `npm run admin:create -- --email voce@empresa.com.br --name "Seu Nome" --remote`.
@@ -110,9 +109,9 @@ Cada consulta enviada pelo site é gravada no D1 (aparece em **/admin → Consul
 | Destino | URL | Segredo |
 |---|---|---|
 | n8n | `LEADS_WEBHOOK_URL` | `LEADS_WEBHOOK_SECRET` no header `X-Webhook-Secret` (opcional) |
-| Omini Traffic Engine | `TRAFFIC_LEADS_WEBHOOK_URL` | `TRAFFIC_LEADS_WEBHOOK_SECRET` no campo `web-secret` do corpo (o engine exige quando tem `LEAD_WEBHOOK_SECRET` definido) |
+| Omini Traffic Engine | `TRAFFIC_LEADS_WEBHOOK_URL` no `wrangler.jsonc` (formulário `auditorio-rio`) | não exige; se passar a exigir, `TRAFFIC_LEADS_WEBHOOK_SECRET` vai no campo `web-secret` do corpo |
 
-Os envios são independentes: se um falhar, o outro segue. Em erro de rede, 5xx ou 429 o Worker tenta de novo uma vez após 3 s; em 4xx (segredo errado, formulário não cadastrado no engine) não repete e registra no log do Worker. A consulta nunca se perde porque já está no banco (dá para exportar em CSV).
+Os envios são independentes: se um falhar, o outro segue. Rodando em localhost, o engine nunca é chamado (ele posta nos grupos de WhatsApp). `GET /api/health` mostra quais destinos estão configurados (só sim/não). Em erro de rede, 5xx ou 429 o Worker tenta de novo uma vez após 3 s; em 4xx (segredo errado, formulário não cadastrado no engine) não repete e registra no log do Worker. A consulta nunca se perde porque já está no banco (dá para exportar em CSV).
 
 Formato enviado ao n8n (plano, mesmo padrão dos leads do Yevent):
 

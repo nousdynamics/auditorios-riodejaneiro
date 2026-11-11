@@ -36,7 +36,7 @@ export async function handleLead(request: Request, env: Env, ctx: ExecutionConte
     });
 
     // Cópia para n8n / traffic engine em segundo plano (com uma nova tentativa em falha temporária).
-    if (hasLeadDestinations(env)) ctx.waitUntil(deliverLead(env, lead, base));
+    if (hasLeadDestinations(env)) ctx.waitUntil(deliverLead(env, lead, base, { origin: new URL(request.url).origin }));
     return json({ ok: true, id: lead.id }, { status: 201 });
   } catch (err) {
     return errorJson(err);

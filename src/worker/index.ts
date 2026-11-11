@@ -60,7 +60,14 @@ export default {
       if (method !== 'POST') return json({ error: 'Use POST.' }, { status: 405, headers: { Allow: 'POST' } });
       return handleLead(request, env, ctx, siteBase(env, url));
     }
-    if (path === '/api/health') return json({ ok: true, time: new Date().toISOString() });
+    if (path === '/api/health') {
+      // Só diz se cada destino está configurado (nunca as URLs).
+      return json({
+        ok: true,
+        time: new Date().toISOString(),
+        webhooks: { n8n: Boolean(env.LEADS_WEBHOOK_URL?.trim()), trafficEngine: Boolean(env.TRAFFIC_LEADS_WEBHOOK_URL?.trim()) },
+      });
+    }
     if (path.startsWith('/api/')) return json({ error: 'Rota não encontrada.' }, { status: 404 });
 
     // ---------------- Mídia (R2) ----------------

@@ -95,7 +95,7 @@ describe('deliverLead', () => {
       calls.push({ url, headers: init.headers as Record<string, string>, body: JSON.parse(String(init.body)) });
       return new Response('{}', { status: 200 });
     });
-    expect(await deliverLead(env, lead, 'https://x.com.br', 0)).toEqual({ n8n: true, 'traffic-engine': true });
+    expect(await deliverLead(env, lead, 'https://x.com.br', { retryDelayMs: 0 })).toEqual({ n8n: true, 'traffic-engine': true });
     const n8n = calls.find((c) => c.url.includes('n8n'))!;
     const engine = calls.find((c) => c.url.includes('engine'))!;
     expect(n8n.headers['X-Webhook-Secret']).toBe('h');
@@ -113,15 +113,26 @@ describe('deliverLead', () => {
       return new Response('{"error":"secret inválido"}', { status: 401 });
     });
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(await deliverLead(env, lead, 'https://x.com.br', 0)).toEqual({ n8n: true, 'traffic-engine': false });
+    expect(await deliverLead(env, lead, 'https://x.com.br', { retryDelayMs: 0 })).toEqual({ n8n: true, 'traffic-engine': false });
     expect(hits['https://n8n.test/hook']).toBe(2);
     expect(hits['https://engine.test/webhook/leads/form']).toBe(1);
+  });
+
+  it('rodando localmente não manda nada ao traffic engine (posta nos grupos de WhatsApp)', async () => {
+    const urls: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => {
+      urls.push(url);
+      return new Response('{}', { status: 200 });
+    });
+    const res = await deliverLead(env, lead, 'https://auditorioriodejaneiro.com.br', { origin: 'http://127.0.0.1:8787', retryDelayMs: 0 });
+    expect(res).toEqual({ n8n: true });
+    expect(urls).toEqual(['https://n8n.test/hook']);
   });
 
   it('sem destinos configurados não chama nada', async () => {
     const f = vi.fn();
     vi.stubGlobal('fetch', f);
-    expect(await deliverLead({} as Env, lead, 'https://x.com.br', 0)).toEqual({});
+    expect(await deliverLead({} as Env, lead, 'https://x.com.br', { retryDelayMs: 0 })).toEqual({});
     expect(f).not.toHaveBeenCalled();
   });
 });

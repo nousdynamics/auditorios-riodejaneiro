@@ -26,12 +26,12 @@ export function leadEnvironment(base: string): LeadEnvironment {
   return 'production';
 }
 
-export function buildLeadWebhookPayload(lead: Lead, base: string) {
+export function buildLeadWebhookPayload(lead: Lead, base: string, environment: LeadEnvironment = leadEnvironment(base)) {
   const utm = (key: string) => lead.utm[key] ?? '';
   return {
     type: 'consulta_auditorio',
     source: 'site-auditorios-rio',
-    environment: leadEnvironment(base),
+    environment,
     received_at: lead.createdAt,
     id: lead.id,
     name: lead.name,
@@ -83,10 +83,10 @@ export function leadSummary(lead: Lead, base: string): string {
   return '\n' + lines.filter(([, v]) => v !== null && v !== '').map(([k, v]) => `${k}: ${v}`).join('\n');
 }
 
-export function buildTrafficPayload(lead: Lead, base: string, secret?: string) {
+export function buildTrafficPayload(lead: Lead, base: string, secret?: string, environment?: LeadEnvironment) {
   return {
     ...(secret ? { 'web-secret': secret } : {}),
-    ...buildLeadWebhookPayload(lead, base),
+    ...buildLeadWebhookPayload(lead, base, environment),
     message: leadSummary(lead, base),
     details: lead.details,
   };
@@ -99,7 +99,7 @@ interface Target {
   body: unknown;
 }
 
-function targets(env: Env, lead: Lead, base: string): Target[] {
+function targets(env: Env, lead: Lead, base: string, environment: LeadEnvironment): Target[] {
   const list: Target[] = [];
   const n8n = env.LEADS_WEBHOOK_URL?.trim();
   if (n8n) {
@@ -107,16 +107,17 @@ function targets(env: Env, lead: Lead, base: string): Target[] {
       label: 'n8n',
       url: n8n,
       headers: env.LEADS_WEBHOOK_SECRET ? { 'X-Webhook-Secret': env.LEADS_WEBHOOK_SECRET } : {},
-      body: buildLeadWebhookPayload(lead, base),
+      body: buildLeadWebhookPayload(lead, base, environment),
     });
   }
   const traffic = env.TRAFFIC_LEADS_WEBHOOK_URL?.trim();
-  if (traffic) {
+  // O engine posta direto nos grupos de WhatsApp: testes locais nunca vão para lá.
+  if (traffic && environment !== 'local') {
     list.push({
       label: 'traffic-engine',
       url: traffic,
       headers: {},
-      body: buildTrafficPayload(lead, base, env.TRAFFIC_LEADS_WEBHOOK_SECRET?.trim()),
+      body: buildTrafficPayload(lead, base, env.TRAFFIC_LEADS_WEBHOOK_SECRET?.trim(), environment),
     });
   }
   return list;
@@ -142,9 +143,18 @@ async function post(t: Target, leadId: string): Promise<Attempt> {
   }
 }
 
-/** Envia a consulta a todos os destinos configurados, em paralelo. Nunca lança. */
-export async function deliverLead(env: Env, lead: Lead, base: string, retryDelayMs = 3000): Promise<Record<string, boolean>> {
-  const list = targets(env, lead, base);
+/**
+ * Envia a consulta a todos os destinos configurados, em paralelo. Nunca lança.
+ * `origin` é a origem real da requisição: define o ambiente (production/preview/local),
+ * já que `base` pode ser o domínio canônico (SITE_URL) mesmo rodando localmente.
+ */
+export async function deliverLead(
+  env: Env,
+  lead: Lead,
+  base: string,
+  { origin, retryDelayMs = 3000 }: { origin?: string; retryDelayMs?: number } = {},
+): Promise<Record<string, boolean>> {
+  const list = targets(env, lead, base, leadEnvironment(origin ?? base));
   const results = await Promise.all(
     list.map(async (t) => {
       let r = await post(t, lead.id);

@@ -1,3 +1,5 @@
+# Senha temporária do primeiro admin (nunca versionar)
+SENHA-ADMIN-TEMPORARIA.txt
 node_modules/
 .wrangler/
 .dev.vars

@@ -114,7 +114,14 @@ function startApp(user: AdminUser): void {
     });
     closeMenu();
   };
-  router = new Router(main, ROUTES, isAdmin, markActive);
+  // Senha temporária: o painel inteiro vira a tela de troca de senha
+  const routes = user.mustChangePassword
+    ? [
+        { pattern: '', view: accountView },
+        { pattern: 'conta', view: accountView },
+      ]
+    : ROUTES;
+  router = new Router(main, routes, isAdmin, markActive);
   void router.render();
 }
 

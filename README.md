@@ -96,6 +96,12 @@ npm run media       # regenera mídia a partir de media-src/ (precisa de ffmpeg 
 
 **Alternativa:** `.github/workflows/deploy.yml` publica via GitHub Actions quando os segredos `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` existem no repositório. Use um dos dois caminhos, não ambos. O `ci.yml` roda tipos, testes e um deploy de teste (`--dry-run`) em todo push e PR.
 
+## Marca
+
+Símbolo "plateia em ondas" (criado com o Codex a partir do briefing da marca): a barra dourada é o palco/tela e as duas curvas teal são as fileiras da plateia, que lembram as ondas da orla do Rio. Cores: tinta `#123441`, dourado `#E5BB65`, teal `#2BB3BD`.
+
+Arquivos em `public/brand/` (servidos em `/brand/...`): `simbolo.svg`, `simbolo-negativo.svg`, `logo-horizontal.svg`, `logo-horizontal-negativo.svg`. O favicon, os ícones de app e a imagem de compartilhamento saem de `scripts/optimize-media.mjs` (`node scripts/optimize-media.mjs icons og`).
+
 ## Google Tag Manager
 
 O contêiner fica na variável `GTM_ID` do `wrangler.jsonc` (hoje `GTM-5GZWSDV7`; vazio = sem GTM). Ele não carrega em `localhost`, para testes locais não contarem como visita, e, em páginas pré-renderizadas pelas Speculation Rules, só carrega quando a pessoa abre a página.

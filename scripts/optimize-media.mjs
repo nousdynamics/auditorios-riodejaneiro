@@ -91,9 +91,10 @@ async function ogImage() {
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#g)"/>
-  <rect x="72" y="84" width="120" height="10" rx="3" fill="${GOLD}"/>
-  <g fill="${TEAL}">
-    ${[0, 1, 2].map((r) => [0, 1, 2, 3, 4].map((c) => `<circle cx="${82 + c * 26}" cy="${124 + r * 24}" r="6"/>`).join('')).join('')}
+  <g transform="translate(25.3 37.3) scale(3.333)">
+    <rect x="14" y="14" width="36" height="7" rx="2" fill="${GOLD}"/>
+    <path d="M12 31C23 24 41 24 52 31V38C41 31 23 31 12 38Z" fill="${TEAL}"/>
+    <path d="M12 44C23 37 41 37 52 44V51C41 44 23 44 12 51Z" fill="${TEAL}"/>
   </g>
   <text x="72" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#F2F5F4">Auditórios para cursos</text>
   <text x="72" y="374" font-family="Georgia, 'Times New Roman', serif" font-size="62" fill="#F2F5F4">e treinamentos no</text>
@@ -107,17 +108,17 @@ async function ogImage() {
   log(`og-image.jpg ${kb(out)}`);
 }
 
+// Ícone de app/favicon: o quadrado tinta faz o papel da moldura do símbolo
+// (palco dourado + duas fileiras/ondas teal). Ver public/brand/simbolo.svg.
 function markSvg({ size = 64, radius = 14, padding = 0 } = {}) {
   const s = 64;
   const scale = (s - padding * 2) / s;
-  const dots = [0, 1, 2]
-    .map((r) => [0, 1, 2, 3].map((c) => `<circle cx="${17 + c * 10}" cy="${31 + r * 9.5}" r="3.3"/>`).join(''))
-    .join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${size}" height="${size}">
 <rect width="${s}" height="${s}" rx="${radius}" fill="${INK}"/>
 <g transform="translate(${padding} ${padding}) scale(${scale})">
-<rect x="13" y="13" width="38" height="7" rx="2" fill="${GOLD}"/>
-<g fill="${TEAL}">${dots}</g>
+<rect x="14" y="14" width="36" height="7" rx="2" fill="${GOLD}"/>
+<path d="M12 31C23 24 41 24 52 31V38C41 31 23 31 12 38Z" fill="${TEAL}"/>
+<path d="M12 44C23 37 41 37 52 44V51C41 44 23 44 12 51Z" fill="${TEAL}"/>
 </g>
 </svg>`;
 }

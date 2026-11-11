@@ -5,10 +5,10 @@
 import type { Faq, Room, SiteSettings } from '../../shared/types';
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  brandName: 'InterFISIO',
-  brandLine: 'Locação de auditórios no Rio de Janeiro',
+  brandName: 'Auditório Rio de Janeiro',
+  brandLine: 'Locação de auditórios no Centro do Rio',
   whatsapp: '5521967770445',
-  whatsappMessage: 'Olá! Gostaria de consultar a locação de um auditório da InterFISIO.',
+  whatsappMessage: 'Olá! Gostaria de consultar a locação de um auditório.',
   email: 'cursos@interfisio.com.br',
   address: {
     street: 'Rua São Bento, 09',
@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero: {
     title: 'Auditórios para cursos e treinamentos no Centro do Rio de Janeiro',
     intro:
-      'Realize sua próxima aula, curso ou reunião na InterFISIO. Escolha um auditório por hora ou turno, ou consulte o pacote corporativo para locar o andar completo.',
+      'Realize sua próxima aula, curso ou reunião no Centro do Rio. Escolha um auditório por hora ou turno, ou reserve o andar completo com o pacote corporativo.',
     note: 'De 30 a 50 pessoas, conforme o auditório.',
   },
   stats: {
@@ -116,14 +116,14 @@ export const SEED_ROOMS: SeedRoom[] = [
     tagline: 'Para novas ideias.',
     summary: 'Quadro de vidro, projetor no teto e cadeiras com prancheta. Indicado para oficinas, workshops e reuniões de trabalho.',
     description: `O Auditório 3 combina quadro de vidro e projetor instalado no teto, um bom formato para oficinas e reuniões em que as ideias vão sendo registradas ao longo do encontro.\n\n${BASE_DESCRIPTION}`,
-    photos: [photo('auditorio-3', 'Auditório 3 da InterFISIO com cadeiras com prancheta, quadro de vidro e projetor no teto')],
+    photos: [photo('auditorio-3', 'Auditório 3 com cadeiras com prancheta, quadro de vidro e projetor no teto')],
     amenities: ['cadeiras-prancheta', 'projetor', 'quadro-vidro', 'climatizacao', 'copa', 'banheiro'],
   }),
   room(4, {
     tagline: 'Para aprender e trocar.',
     summary: 'Tela de projeção e área frontal livre, com cadeiras com prancheta. Indicado para cursos, palestras e encontros de formação.',
     description: `O Auditório 4 tem tela de projeção e área frontal livre, adequada para palestras, cursos e encontros de formação.\n\n${BASE_DESCRIPTION}`,
-    photos: [photo('auditorio-4', 'Auditório 4 da InterFISIO com cadeiras com prancheta, tela de projeção e área frontal livre')],
+    photos: [photo('auditorio-4', 'Auditório 4 com cadeiras com prancheta, tela de projeção e área frontal livre')],
     amenities: ['cadeiras-prancheta', 'projetor', 'tela-projecao', 'climatizacao', 'copa', 'banheiro'],
   }),
 ];

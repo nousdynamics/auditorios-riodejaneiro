@@ -1,5 +1,5 @@
 /* =========================================================================
-   InterFISIO — Auditórios no Centro do Rio
+   Auditório Rio de Janeiro — site público
    Tokens, base, componentes, seções e animações (sem framework).
    ========================================================================= */
 
@@ -368,6 +368,16 @@ p {
   font-size: 0.78rem;
   color: var(--muted);
   margin-top: 0.2rem;
+}
+@media (max-width: 480px) {
+  .site-header .brand__name {
+    font-size: 1.04rem;
+    white-space: nowrap;
+  }
+  .site-header .brand__line {
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
 }
 .nav {
   display: flex;

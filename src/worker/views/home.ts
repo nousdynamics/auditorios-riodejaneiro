@@ -57,7 +57,7 @@ export function homePage(ctx: RenderCtx, data: SiteData): SafeHtml {
   const homeFaqs = faqs.filter((f) => f.scope === 'home');
   const heroPhoto = rooms.find((r) => r.slug === 'auditorio-2')?.photos[0] ?? rooms[0]?.photos[0];
   const second = rooms.find((r) => r.slug === 'auditorio-3')?.photos[0] ?? rooms[1]?.photos[0];
-  const title = 'Aluguel de auditórios no Centro do Rio de Janeiro | InterFISIO';
+  const title = `${s.brandName} | Aluguel de auditórios no Centro`;
   const description =
     'Auditórios para cursos, treinamentos e reuniões no Centro do Rio, para 30 a 50 pessoas, com datashow e climatização. Locação por hora, turno ou andar completo.';
 
@@ -99,7 +99,7 @@ ${seatPlanner(rooms)}
 
 <section class="tour" aria-label="Vídeo: por dentro dos auditórios">
   <div class="tour__frame" data-reveal>
-    <video class="tour__video" muted loop playsinline preload="none" poster="/assets/video/tour-poster.webp" width="960" height="540" data-autoplay-visible aria-label="Passeio pelos quatro auditórios da InterFISIO">
+    <video class="tour__video" muted loop playsinline preload="none" poster="/assets/video/tour-poster.webp" width="960" height="540" data-autoplay-visible aria-label="Passeio pelos quatro auditórios">
       <source src="/assets/video/tour-auditorios.webm" type="video/webm">
       <source src="/assets/video/tour-auditorios.mp4" type="video/mp4">
     </video>

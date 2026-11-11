@@ -87,7 +87,7 @@ export function organizationGraph(base: string, s: SiteSettings, rooms: Room[]) 
       '@type': 'WebSite',
       '@id': websiteId(base),
       url: `${base}/`,
-      name: `${s.brandName} — Auditórios no Rio de Janeiro`,
+      name: s.brandName,
       inLanguage: 'pt-BR',
       publisher: { '@id': orgId(base) },
     },

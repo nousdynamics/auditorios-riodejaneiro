@@ -1,6 +1,6 @@
-# Auditórios Rio de Janeiro — InterFISIO
+# Auditório Rio de Janeiro
 
-Site e painel de gestão para a locação dos auditórios da InterFISIO (Rua São Bento, 09 — 13º e 14º andares, Centro do Rio).
+Site ([auditorioriodejaneiro.com.br](https://auditorioriodejaneiro.com.br)) e painel de gestão para a locação dos auditórios da Rua São Bento, 09 — 13º e 14º andares, Centro do Rio (espaço da InterFISIO).
 É a versão melhorada do one-page original, com a mesma proposta da plataforma Yevent: catálogo de salas, página própria para cada auditório, consulta de disponibilidade e um portal para a equipe editar tudo sem mexer em código.
 
 - **Stack:** HTML renderizado no servidor + CSS + TypeScript, sem framework. Roda em **Cloudflare Workers** com **D1** (banco), **R2** (fotos enviadas pelo painel) e **Static Assets** (imagens, fontes, vídeo, CSS/JS).

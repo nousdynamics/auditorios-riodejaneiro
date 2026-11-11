@@ -32,15 +32,15 @@ import {
 export function roomsPage(ctx: RenderCtx, data: SiteData): SafeHtml {
   const { settings: s, rooms } = data;
   const base = ctx.base;
-  const title = 'Auditórios para locação no Centro do Rio de Janeiro | InterFISIO';
-  const description = `Compare os ${rooms.length} auditórios da InterFISIO na Rua São Bento, Centro do Rio: capacidade, recursos e formatos. Locação por hora, turno ou andar completo.`;
+  const title = `Auditórios para locação no Centro | ${s.brandName}`;
+  const description = `Compare os ${rooms.length} auditórios na Rua São Bento, Centro do Rio: capacidade, recursos e formatos. Locação por hora, turno ou andar completo.`;
   const amenityIds = [...new Set(rooms.flatMap((r) => r.amenities))];
 
   const body = html`
 <section class="page-hero">
   ${breadcrumb([{ name: 'Início', href: '/' }, { name: 'Auditórios' }])}
   <h1 class="page-hero__title">Auditórios para locação no Centro do Rio</h1>
-  <p class="page-hero__lead" data-speakable>A InterFISIO tem ${rooms.length} auditórios na ${s.address.street}, ${s.address.complement}, para ${s.stats.capacityLabel || '30 a 50'} pessoas, com datashow, tela de projeção e climatização. Locação por hora, por turno ou do andar completo.</p>
+  <p class="page-hero__lead" data-speakable>São ${rooms.length} auditórios na ${s.address.street}, ${s.address.complement}, para ${s.stats.capacityLabel || '30 a 50'} pessoas, com datashow, tela de projeção e climatização. Locação por hora, por turno ou do andar completo.</p>
   <form class="filter" data-room-filter role="search" aria-label="Filtrar auditórios">
     <label for="filter-people">Participantes</label>
     <input id="filter-people" type="number" min="1" max="2000" inputmode="numeric" placeholder="Ex.: 40" data-filter-people>
@@ -134,7 +134,7 @@ export function roomPage(ctx: RenderCtx, data: SiteData, r: Room): SafeHtml {
   const { settings: s, rooms } = data;
   const base = ctx.base;
   const path = `/auditorios/${r.slug}`;
-  const title = r.seoTitle || `${r.name} para locação no Centro do Rio | ${s.brandName}`;
+  const title = r.seoTitle || `${r.name} no Centro do Rio | ${s.brandName}`;
   const description =
     r.seoDescription ||
     `${r.name} da ${s.brandName} na ${s.address.street}, Centro do Rio: ${capacityText(r).toLowerCase()}, ${r.amenities
@@ -308,9 +308,9 @@ export function corporatePage(ctx: RenderCtx, data: SiteData): SafeHtml {
   const base = ctx.base;
   const path = '/pacote-corporativo';
   const corpFaqs = faqs.filter((f) => f.scope === 'corporativo');
-  const title = `Pacote corporativo: andar completo no Centro do Rio | ${s.brandName}`;
+  const title = `Pacote corporativo: andar completo | ${s.brandName}`;
   const description =
-    'Alugue o andar completo da InterFISIO no Centro do Rio: três salas/auditórios, recepção customizável com a sua marca, copa para coffee break e banheiro.';
+    'Alugue um andar completo no Centro do Rio: três salas/auditórios, recepção customizável com a sua marca, copa para coffee break e banheiro.';
   const cover = rooms[0]?.photos[0];
 
   const body = html`

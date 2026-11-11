@@ -128,9 +128,11 @@ ${header(ctx)}
 ${body}
 </main>
 ${footer(ctx)}
-<a class="wa-float" href="${whatsappUrl(s)}" target="_blank" rel="noopener" aria-label="Conversar no WhatsApp: ${phoneDisplay(s.whatsapp)}" data-wa-float>
-  ${icon('whatsapp')}<span>Conversar no WhatsApp</span>
-</a>
+<a class="wa-float" href="${whatsappUrl(s)}" target="_blank" rel="noopener" aria-label="WhatsApp: ${phoneDisplay(s.whatsapp)}" title="WhatsApp" data-wa-float>${icon('whatsapp')}</a>
+<div class="cookie-note" role="region" aria-label="Aviso de cookies" data-cookie-note hidden>
+  <p>Usamos cookies para medir as visitas e o resultado dos nossos anúncios. <a href="/politica-de-privacidade">Saiba mais</a></p>
+  <button class="btn btn--ink btn--sm" type="button" data-cookie-ok>Entendi</button>
+</div>
 </body>
 </html>`;
 }
@@ -149,8 +151,7 @@ function header(ctx: RenderCtx): SafeHtml {
         ${NAV.map((n) => html`<li><a href="${n.href}" ${raw(current(n.href) ? 'aria-current="page"' : '')}>${n.label}</a></li>`)}
       </ul>
       <div class="nav__cta">
-        <a class="btn btn--ghost btn--sm" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}WhatsApp</a>
-        <a class="btn btn--ink btn--sm" href="${ctx.path === '/' ? '' : '/'}#consulta">Consultar disponibilidade</a>
+        <a class="btn btn--ink btn--sm" href="${ctx.path === '/' ? '' : '/'}#consulta">Agendar sala</a>
       </div>
     </nav>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
@@ -177,7 +178,7 @@ function footer(ctx: RenderCtx): SafeHtml {
     <div>
       <h2 class="site-footer__h">Contato</h2>
       <ul class="site-footer__list">
-        <li><a href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}${phoneDisplay(s.whatsapp)}</a></li>
+        <li>${icon('whatsapp')}${phoneDisplay(s.whatsapp)}</li>
         <li><a href="mailto:${s.email}">${icon('mail')}${s.email}</a></li>
         ${s.openingHours ? html`<li>${icon('clock')}${s.openingHours}</li>` : ''}
         ${socials.map(([k, v]) => html`<li><a href="${v}" target="_blank" rel="noopener me">${k.charAt(0).toUpperCase() + k.slice(1)}</a></li>`)}
@@ -188,7 +189,7 @@ function footer(ctx: RenderCtx): SafeHtml {
       <ul class="site-footer__list">
         <li><a href="/auditorios">Auditórios</a></li>
         <li><a href="/pacote-corporativo">Pacote corporativo</a></li>
-        <li><a href="/#consulta">Consultar disponibilidade</a></li>
+        <li><a href="/#consulta">Agendar sala</a></li>
         <li><a href="/politica-de-privacidade">Política de privacidade</a></li>
       </ul>
     </div>

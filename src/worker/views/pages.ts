@@ -17,12 +17,12 @@ import {
   fullAddress,
   icon,
   layoutList,
+  phoneDisplay,
   picture,
   preloadPhoto,
   priceList,
   roomCard,
   steps,
-  whatsappUrl,
 } from './ui';
 
 // ---------------------------------------------------------------------------
@@ -79,7 +79,7 @@ ${corporateBand(s)}
 
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
-    <h2 id="consulta-title" class="section__title">Consulte disponibilidade</h2>
+    <h2 id="consulta-title" class="section__title">Agende sua sala</h2>
     <p class="section__lead">Escolha o auditório ou peça orientação. A equipe responde com a disponibilidade e os valores.</p>
     ${steps()}
   </div>
@@ -125,7 +125,7 @@ export function roomFaqs(r: Room, s: SiteData['settings']) {
     },
     {
       question: `Como alugar o ${r.name}?`,
-      answer: `Preencha a consulta nesta página com data, horário e número de participantes e envie pelo WhatsApp ou por e-mail. A locação pode ser por hora ou por turno; a reserva é confirmada pela equipe.`,
+      answer: `Preencha o formulário nesta página com data, horário e número de participantes. A equipe responde no WhatsApp ou no e-mail com disponibilidade e valores; a locação pode ser por hora ou por turno.`,
     },
   ];
 }
@@ -231,7 +231,7 @@ export function roomPage(ctx: RenderCtx, data: SiteData, r: Room): SafeHtml {
       </section>
     </div>
 
-    <aside class="booking-card" aria-label="Consultar o ${r.name}">
+    <aside class="booking-card" aria-label="Agendar o ${r.name}">
       <div class="booking-card__inner">
         <p class="booking-card__status ${r.isAvailable ? 'is-on' : ''}">${r.isAvailable ? 'Disponível para consulta' : 'Indisponível no momento'}</p>
         ${prices.length
@@ -242,8 +242,7 @@ export function roomPage(ctx: RenderCtx, data: SiteData, r: Room): SafeHtml {
           <li>${icon('check')}Datashow e climatização</li>
           <li>${icon('check')}Copa e banheiro no andar</li>
         </ul>
-        <a class="btn btn--ink btn--block" href="#consulta" data-room="${r.name}">Consultar este auditório</a>
-        <a class="btn btn--ghost btn--block" href="${whatsappUrl(s, `Olá! Gostaria de consultar a locação do ${r.name} da ${s.brandName}.`)}" target="_blank" rel="noopener">${icon('whatsapp')}Perguntar no WhatsApp</a>
+        <a class="btn btn--ink btn--block" href="#consulta" data-room="${r.name}">Agendar sala</a>
         <p class="booking-card__note">Sem cobrança nesta etapa. A reserva é confirmada pela equipe.</p>
       </div>
     </aside>
@@ -252,12 +251,12 @@ export function roomPage(ctx: RenderCtx, data: SiteData, r: Room): SafeHtml {
 
 <div class="mobile-bar" data-mobile-bar>
   <span><strong>${r.name}</strong>${capacityText(r)}</span>
-  <a class="btn btn--gold btn--sm" href="#consulta" data-room="${r.name}">Consultar</a>
+  <a class="btn btn--gold btn--sm" href="#consulta" data-room="${r.name}">Agendar sala</a>
 </div>
 
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
-    <h2 id="consulta-title" class="section__title">Consultar o ${r.name}</h2>
+    <h2 id="consulta-title" class="section__title">Agendar o ${r.name}</h2>
     <p class="section__lead">Informe data, horário e participantes. A equipe responde com disponibilidade e valores.</p>
     ${steps()}
   </div>
@@ -320,8 +319,7 @@ export function corporatePage(ctx: RenderCtx, data: SiteData): SafeHtml {
   <h1 class="page-hero__title">${s.corporate.title}</h1>
   <p class="page-hero__lead" data-speakable>${s.corporate.text}</p>
   <div class="page-hero__actions">
-    <a class="btn btn--gold btn--lg" href="#consulta">Consultar o pacote corporativo ${icon('arrow')}</a>
-    <a class="btn btn--on-dark btn--lg" href="${whatsappUrl(s, `Olá! Gostaria de consultar o pacote corporativo (andar completo) da ${s.brandName}.`)}" target="_blank" rel="noopener">${icon('whatsapp')}WhatsApp</a>
+    <a class="btn btn--gold btn--lg" href="#consulta">Agendar o andar completo ${icon('arrow')}</a>
   </div>
 </section>
 
@@ -354,7 +352,7 @@ export function corporatePage(ctx: RenderCtx, data: SiteData): SafeHtml {
 
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
-    <h2 id="consulta-title" class="section__title">Consultar o andar completo</h2>
+    <h2 id="consulta-title" class="section__title">Agendar o andar completo</h2>
     <p class="section__lead">Conte o formato do evento, a data e quantas pessoas devem participar.</p>
     ${steps()}
   </div>
@@ -417,7 +415,7 @@ export function privacyPage(ctx: RenderCtx): SafeHtml {
   <h2>Por quanto tempo guardamos</h2>
   <p>As consultas ficam guardadas pelo tempo necessário ao atendimento e ao histórico comercial, e podem ser excluídas a qualquer momento a seu pedido.</p>
   <h2>Seus direitos (LGPD)</h2>
-  <p>Você pode pedir acesso, correção ou exclusão dos seus dados pelo e-mail <a href="mailto:${s.email}">${s.email}</a> ou pelo WhatsApp <a href="${whatsappUrl(s)}" target="_blank" rel="noopener">${s.whatsapp.replace(/^55/, '')}</a>.</p>
+  <p>Você pode pedir acesso, correção ou exclusão dos seus dados pelo e-mail <a href="mailto:${s.email}">${s.email}</a> ou pelo WhatsApp ${phoneDisplay(s.whatsapp)}.</p>
   <h2>Contato</h2>
   <p>${s.brandName} — ${fullAddress(s)}.</p>
 </section>`;
@@ -433,7 +431,7 @@ export function notFoundPage(ctx: RenderCtx, rooms: Room[]): SafeHtml {
   <p class="page-hero__lead">O endereço pode ter mudado. Escolha um dos auditórios abaixo ou volte para a página inicial.</p>
   <div class="page-hero__actions">
     <a class="btn btn--ink" href="/">Ir para a página inicial</a>
-    <a class="btn btn--ghost" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Falar no WhatsApp</a>
+    <a class="btn btn--ghost" href="/auditorios">Ver auditórios</a>
   </div>
 </section>
 <section class="section rooms"><div class="room-grid">${rooms.map((r, i) => roomCard(r, i))}</div></section>`;

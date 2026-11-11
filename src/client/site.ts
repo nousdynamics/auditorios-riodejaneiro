@@ -1,6 +1,6 @@
 /**
  * Interações do site público. Sem dependências; tudo é melhoria progressiva:
- * sem JS a página continua completa e o formulário cai no WhatsApp/e-mail.
+ * sem JS a página continua completa (conteúdo, links e endereço).
  */
 
 const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel);
@@ -292,7 +292,6 @@ function consultForm(): void {
   const summary = $('#consult-summary')!;
   const status = $('.consult__status', form)!;
   const fields = form.elements as FormFields;
-  const brand = form.dataset.brand ?? '';
   const startedAt = performance.now();
 
   const date = fields.eventDate;
@@ -316,7 +315,7 @@ function consultForm(): void {
     }
   });
 
-  // Botões "Consultar" espalhados pela página preenchem o formulário
+  // Botões "Agendar sala" espalhados pela página preenchem o formulário
   document.addEventListener('click', (e) => {
     const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-room], [data-activity], [data-people]');
     if (!trigger || !trigger.matches('a[href*="#consulta"]')) return;
@@ -362,17 +361,6 @@ function consultForm(): void {
     el.setAttribute('aria-describedby', p.id);
     wrap.append(p);
   };
-  /** Erro de envio com atalho para o WhatsApp, para a consulta não se perder. */
-  const sendFailed = (msg: string, waHref: string) => {
-    status.textContent = `${msg} `;
-    const a = document.createElement('a');
-    a.href = waHref;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.textContent = 'Falar com a equipe no WhatsApp';
-    status.append(a);
-  };
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
@@ -394,19 +382,6 @@ function consultForm(): void {
       fields[Object.keys(errors)[0]]?.focus();
       return;
     }
-
-    // Texto pronto para quem quiser falar já no WhatsApp (sucesso ou falha no envio)
-    const message = [
-      `Olá! Acabei de enviar uma consulta pelo site da ${brand}.`,
-      '',
-      `Espaço: ${data.space}`,
-      `Nome: ${data.name.trim()}`,
-      `Atividade: ${data.activity}`,
-      `Data: ${formatDateBr(data.eventDate)}`,
-      `Participantes: ${data.people}`,
-      `Horário e duração: ${data.schedule.trim()}`,
-    ].join('\n');
-    const waHref = `https://wa.me/${form.dataset.whatsapp}?text=${encodeURIComponent(message)}`;
 
     const button = $<HTMLButtonElement>('button[type="submit"]', form)!;
     const label = button.textContent;
@@ -436,10 +411,10 @@ function consultForm(): void {
           fields[Object.keys(body.fields)[0]]?.focus();
           return;
         }
-        sendFailed(body.error ?? 'Não foi possível enviar agora. Tente de novo em instantes.', waHref);
+        status.textContent = body.error ?? 'Não foi possível enviar agora. Tente de novo em instantes.';
       }
     } catch {
-      sendFailed('Sem conexão no momento. Confira a internet e tente de novo.', waHref);
+      status.textContent = 'Sem conexão no momento. Confira a internet e tente de novo.';
     } finally {
       button.disabled = false;
       button.textContent = label;
@@ -450,7 +425,6 @@ function consultForm(): void {
     const when = formatDateBr(data.eventDate);
     const about = data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
     summary.textContent = `Obrigado, ${firstName}. A equipe vai responder no WhatsApp ou no e-mail ${email} com disponibilidade, recursos e valores (${about}).`;
-    $<HTMLAnchorElement>('#send-whatsapp')!.href = waHref;
 
     try {
       sessionStorage.removeItem(DRAFT_KEY);
@@ -645,12 +619,36 @@ function mobileBar(): void {
 }
 
 // ---------------------------------------------------------------------------
+// Aviso de cookies (só informativo: as tags já rodam; "Entendi" apenas esconde)
+// ---------------------------------------------------------------------------
+function cookieNote(): void {
+  const note = $('[data-cookie-note]');
+  if (!note) return;
+  const KEY = 'aviso-cookies';
+  try {
+    if (localStorage.getItem(KEY)) return;
+  } catch {
+    /* sem storage: mostra o aviso */
+  }
+  note.hidden = false;
+  $('[data-cookie-ok]', note)?.addEventListener('click', () => {
+    note.hidden = true;
+    try {
+      localStorage.setItem(KEY, new Date().toISOString());
+    } catch {
+      /* sem storage */
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 captureUtm();
 header();
 reveal();
 motion();
 planner();
 consultForm();
+cookieNote();
 gallery();
 videos();
 maps();

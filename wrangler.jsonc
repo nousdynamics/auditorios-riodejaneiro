@@ -37,6 +37,14 @@
     "TRAFFIC_LEADS_WEBHOOK_URL": "https://omini-traffic-engine.nousdynamicslta.workers.dev/webhook/leads/auditorio-rio"
   },
 
+  // Limites de requisições por IP, aplicados na borda do Cloudflare antes do banco
+  // (somam-se aos limites gravados no D1). namespace_id só precisa ser único na conta.
+  "ratelimits": [
+    { "name": "LOGIN_LIMIT", "namespace_id": "2611101", "simple": { "limit": 10, "period": 60 } },
+    { "name": "ADMIN_API_LIMIT", "namespace_id": "2611102", "simple": { "limit": 240, "period": 60 } },
+    { "name": "LEADS_LIMIT", "namespace_id": "2611103", "simple": { "limit": 5, "period": 60 } }
+  ],
+
   // Sem database_id / bucket próprio: o `wrangler deploy` cria os recursos na primeira vez
   // (provisionamento automático) e reaproveita nas próximas. O schema é aplicado pelo Worker.
   "d1_databases": [

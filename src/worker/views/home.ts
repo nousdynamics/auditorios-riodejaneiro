@@ -3,7 +3,7 @@ import type { SiteData } from '../data';
 import { type SafeHtml, html, jsonScript, raw } from '../lib/html';
 import { faqPage, graph, organizationGraph, roomItemList, roomPlace, webPage } from '../seo/schema';
 import { type RenderCtx, layout } from './layout';
-import { consultForm, faqList, icon, mapsEmbedUrl, mapsUrl, picture, preloadPhoto, roomCard, steps, wazeUrl, whatsappUrl } from './ui';
+import { consultForm, faqList, icon, mapsEmbedUrl, mapsUrl, picture, preloadPhoto, roomCard, steps, wazeUrl } from './ui';
 
 const HERO_SIZES = '(min-width: 1100px) 460px, (min-width: 760px) 40vw, 88vw';
 
@@ -44,7 +44,7 @@ export function seatPlanner(rooms: Room[]): SafeHtml {
         <p class="stage__overflow" data-planner-overflow hidden></p>
       </div>
       <div class="planner__result" data-planner-result aria-live="polite"></div>
-      <a class="btn btn--gold" href="#consulta" data-planner-cta><span>Consultar para <span data-planner-num>30</span> pessoas</span></a>
+      <a class="btn btn--gold" href="#consulta" data-planner-cta><span>Agendar sala para <span data-planner-num>30</span> pessoas</span></a>
     </div>
   </div>
   <script type="application/json" id="planner-data">${jsonScript({ rooms: data })}</script>
@@ -68,8 +68,8 @@ export function homePage(ctx: RenderCtx, data: SiteData): SafeHtml {
     <h1 id="hero-title" class="hero__title">${splitWords(s.hero.title)}</h1>
     <p class="hero__intro" data-speakable>${s.hero.intro}</p>
     <div class="hero__actions">
-      <a class="btn btn--ink btn--lg" href="#consulta" data-magnetic>Consultar disponibilidade ${icon('arrow')}</a>
-      <a class="btn btn--ghost btn--lg" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Falar no WhatsApp</a>
+      <a class="btn btn--ink btn--lg" href="#consulta" data-magnetic>Agendar sala ${icon('arrow')}</a>
+      <a class="btn btn--ghost btn--lg" href="/auditorios">Ver auditórios</a>
     </div>
     <dl class="hero__facts">
       <div><dt>Locação</dt><dd>Por hora ou por turno</dd></div>
@@ -127,7 +127,7 @@ ${seatPlanner(rooms)}
         (u, i) => html`<li data-reveal style="--i:${i}">
           ${icon(['school', 'spark', 'talk'][i % 3])}
           <div><h3>${u.title}</h3><p>${u.text}</p>
-          <a class="link-arrow" href="#consulta" data-activity="${['Aula ou curso', 'Oficina ou treinamento', 'Reunião ou encontro'][i] ?? 'Outra atividade'}">Consultar para ${u.title.toLowerCase()} ${icon('arrow')}</a></div>
+          <a class="link-arrow" href="#consulta" data-activity="${['Aula ou curso', 'Oficina ou treinamento', 'Reunião ou encontro'][i] ?? 'Outra atividade'}">Agendar sala para ${u.title.toLowerCase()} ${icon('arrow')}</a></div>
         </li>`,
       )}
     </ul>
@@ -152,7 +152,7 @@ ${locationSection(s)}
 <section class="section faq-section" id="duvidas" aria-labelledby="faq-title">
   <div class="faq-section__head">
     <h2 id="faq-title" class="section__title">Bom saber antes de reservar</h2>
-    <p class="section__lead">Não encontrou sua dúvida? <a href="${whatsappUrl(s)}" target="_blank" rel="noopener">Pergunte pelo WhatsApp</a> ou escreva para <a href="mailto:${s.email}">${s.email}</a>.</p>
+    <p class="section__lead">Não encontrou sua dúvida? Escreva para <a href="mailto:${s.email}">${s.email}</a>.</p>
   </div>
   ${faqList(homeFaqs)}
 </section>
@@ -215,7 +215,7 @@ export function corporateBand(s: RenderCtx['settings']): SafeHtml {
       </ul>
       <div class="corporate__actions">
         <a class="btn btn--gold" href="/pacote-corporativo">Conhecer o pacote corporativo ${icon('arrow')}</a>
-        <a class="btn btn--on-dark" href="#consulta" data-room="Andar completo — pacote corporativo">Consultar agora</a>
+        <a class="btn btn--on-dark" href="#consulta" data-room="Andar completo — pacote corporativo">Agendar o andar completo</a>
       </div>
     </div>
     <figure class="corporate__plan" data-reveal="plan">
@@ -265,7 +265,7 @@ export function finalCta(s: RenderCtx['settings']): SafeHtml {
     <h2 id="final-title">Conte o que você está planejando</h2>
     <p>Data, horário e número de pessoas bastam para começar. A equipe confirma a sala e as condições.</p>
     <div class="final-cta__actions">
-      <a class="btn btn--gold btn--lg" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Conversar no WhatsApp</a>
+      <a class="btn btn--gold btn--lg" href="#consulta">Agendar sala ${icon('arrow')}</a>
       <a class="btn btn--on-dark btn--lg" href="mailto:${s.email}?subject=${encodeURIComponent('Consulta de locação de auditório')}">${icon('mail')}Enviar e-mail</a>
     </div>
   </div>

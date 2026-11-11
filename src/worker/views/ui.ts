@@ -145,7 +145,7 @@ export function roomCard(r: Room, i: number): SafeHtml {
       </ul>
       <div class="room-card__actions">
         <a class="link-arrow" href="/auditorios/${r.slug}">Ver o ${r.name.toLowerCase().startsWith('audit') ? 'auditório' : 'espaço'} ${icon('arrow')}</a>
-        <a class="btn btn--ghost btn--sm" href="#consulta" data-room="${r.name}">Consultar</a>
+        <a class="btn btn--ghost btn--sm" href="#consulta" data-room="${r.name}">Agendar sala</a>
       </div>
     </div>
   </article>`;
@@ -204,7 +204,7 @@ export function faqList(faqs: Faq[], id = 'faq'): SafeHtml {
 export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: string; modality?: string } = {}): SafeHtml {
   const spaces = [GUIDANCE_SPACE, ...rooms.map((r) => r.name), CORPORATE_SPACE];
   const preset = opts.preset ?? GUIDANCE_SPACE;
-  return html`<form class="consult" id="consult-form" novalidate data-whatsapp="${s.whatsapp}" data-email="${s.email}" data-brand="${s.brandName}" data-guidance="${GUIDANCE_SPACE}">
+  return html`<form class="consult" id="consult-form" novalidate data-guidance="${GUIDANCE_SPACE}">
     <div class="field field--wide">
       <label for="f-space">Espaço de interesse</label>
       <select id="f-space" name="space">
@@ -254,18 +254,17 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <input id="f-website" name="website" tabindex="-1" autocomplete="off">
     </div>
     <div class="field--wide consult__submit">
-      <button class="btn btn--gold btn--lg" type="submit">Enviar consulta</button>
+      <button class="btn btn--gold btn--lg" type="submit">Solicitar agendamento</button>
       <p class="consult__note">Usamos seus dados só para responder a esta consulta. <a href="/politica-de-privacidade">Política de privacidade</a></p>
     </div>
     <p class="consult__status field--wide" role="status" aria-live="polite"></p>
   </form>
   <div class="consult-result" id="consult-result" hidden tabindex="-1">
     <span class="consult-result__icon" aria-hidden="true">${icon('check')}</span>
-    <p class="consult-result__title">Consulta enviada</p>
+    <p class="consult-result__title">Pedido de agendamento enviado</p>
     <p class="consult-result__text" id="consult-summary">Recebemos sua consulta. A equipe vai responder no WhatsApp ou no e-mail com disponibilidade, recursos e valores.</p>
     <div class="consult-result__actions">
-      <a class="btn btn--gold" id="send-whatsapp" href="${whatsappUrl(s)}" target="_blank" rel="noopener">${icon('whatsapp')}Falar agora no WhatsApp</a>
-      <button class="btn btn--text" id="new-consult" type="button">Enviar outra consulta</button>
+      <button class="btn btn--ghost" id="new-consult" type="button">Fazer outro pedido</button>
     </div>
   </div>`;
 }

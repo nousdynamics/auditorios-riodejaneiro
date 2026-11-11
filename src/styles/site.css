@@ -2020,69 +2020,91 @@ p {
 }
 
 /* ---------- WhatsApp flutuante ---------- */
+/* Botão flutuante do WhatsApp: discreto, só ícone */
 .wa-float {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 40;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  height: 58px;
-  padding: 0 1.25rem 0 1.05rem;
-  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: #1f9d55;
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 18px -10px rgb(18 52 65 / 0.45);
+  opacity: 0.85;
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), background-color 0.2s, color 0.2s, visibility 0s;
+}
+.js .wa-float:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(10px);
+  visibility: hidden;
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0s 0.35s;
+}
+.wa-float:hover,
+.wa-float:focus-visible {
+  opacity: 1;
   background: #1f9d55;
   color: #fff;
-  font-weight: 650;
-  text-decoration: none;
-  box-shadow: 0 14px 30px -10px rgb(31 157 85 / 0.7);
-  transform: translateY(140%);
-  transition: transform 0.6s var(--ease);
-}
-.wa-float.is-visible {
-  transform: none;
+  border-color: #1f9d55;
 }
 .wa-float .i {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
 }
-.wa-float::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: 0 0 0 0 rgb(31 157 85 / 0.55);
-  animation: wa-ring 2.8s ease-out 2s infinite;
-}
-@keyframes wa-ring {
-  0% {
-    box-shadow: 0 0 0 0 rgb(31 157 85 / 0.5);
-  }
-  70%,
-  100% {
-    box-shadow: 0 0 0 16px rgb(31 157 85 / 0);
-  }
-}
-@media (max-width: 640px) {
-  .wa-float {
-    width: 58px;
-    padding: 0;
-    justify-content: center;
-  }
-  .wa-float span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-}
-.page-room .wa-float {
+.page-room .wa-float,
+.page-room .cookie-note {
   bottom: max(5.5rem, env(safe-area-inset-bottom));
 }
 @media (min-width: 961px) {
-  .page-room .wa-float {
+  .page-room .wa-float,
+  .page-room .cookie-note {
     bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Aviso de cookies (informativo) */
+.cookie-note {
+  position: fixed;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: min(30rem, calc(100% - 2rem - 58px));
+  padding: 0.8rem 0.9rem 0.8rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px -16px rgb(18 52 65 / 0.45);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--muted);
+  animation: fade-up 0.5s var(--ease) both 0.6s;
+}
+.cookie-note[hidden] {
+  display: none;
+}
+.cookie-note p {
+  margin: 0;
+}
+.cookie-note a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cookie-note .btn {
+  flex: none;
+}
+@media (max-width: 480px) {
+  .cookie-note {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
   }
 }
 

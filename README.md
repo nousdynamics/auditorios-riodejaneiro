@@ -100,7 +100,14 @@ npm run media       # regenera mídia a partir de media-src/ (precisa de ffmpeg 
 
 Símbolo "plateia em ondas" (criado com o Codex a partir do briefing da marca): a barra dourada é o palco/tela e as duas curvas teal são as fileiras da plateia, que lembram as ondas da orla do Rio. Cores: tinta `#123441`, dourado `#E5BB65`, teal `#2BB3BD`.
 
-Arquivos em `public/brand/` (servidos em `/brand/...`): `simbolo.svg`, `simbolo-negativo.svg`, `logo-horizontal.svg`, `logo-horizontal-negativo.svg`. O favicon, os ícones de app e a imagem de compartilhamento saem de `scripts/optimize-media.mjs` (`node scripts/optimize-media.mjs icons og`).
+Arquivos em `public/brand/` (servidos em `/brand/...`): `simbolo.svg`, `simbolo-negativo.svg`, `logo-horizontal.svg`, `logo-horizontal-negativo.svg`.
+
+PNGs com fundo transparente em `public/brand/png/` (`/brand/png/...`):
+- `simbolo-{256,512,1024}.png` e `simbolo-negativo-{256,512,1024}.png` (negativo = para fundo escuro);
+- `logo-horizontal-{700,1400,2800}.png` e `logo-horizontal-negativo-{700,1400,2800}.png`;
+- `simbolo-app-{512,1024}.png`: quadrado com fundo, para foto de perfil e ícones.
+
+O nome no logo horizontal está em contornos (Hanken Grotesk 800), então o SVG e o PNG saem iguais em qualquer computador. O favicon, os ícones de app e a imagem de compartilhamento saem de `scripts/optimize-media.mjs` (`node scripts/optimize-media.mjs icons og`).
 
 ## Google Tag Manager
 

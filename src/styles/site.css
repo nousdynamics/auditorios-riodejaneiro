@@ -2028,14 +2028,13 @@ p {
   z-index: 40;
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: var(--paper);
-  color: #1f9d55;
-  border: 1px solid var(--line);
-  box-shadow: 0 6px 18px -10px rgb(18 52 65 / 0.45);
-  opacity: 0.85;
+  background: #1f9d55;
+  color: #fff;
+  border: 0;
+  box-shadow: 0 8px 20px -10px rgb(18 52 65 / 0.5);
   transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), background-color 0.2s, color 0.2s, visibility 0s;
 }
 .js .wa-float:not(.is-visible) {
@@ -2046,14 +2045,12 @@ p {
 }
 .wa-float:hover,
 .wa-float:focus-visible {
-  opacity: 1;
-  background: #1f9d55;
-  color: #fff;
-  border-color: #1f9d55;
+  background: #178a49;
+  transform: translateY(-2px);
 }
 .wa-float .i {
-  width: 22px;
-  height: 22px;
+  width: 27px;
+  height: 27px;
 }
 .page-room .wa-float,
 .page-room .cookie-note {
@@ -2075,7 +2072,7 @@ p {
   display: flex;
   align-items: center;
   gap: 1rem;
-  max-width: min(30rem, calc(100% - 2rem - 58px));
+  max-width: min(30rem, calc(100% - 2rem - 66px));
   padding: 0.8rem 0.9rem 0.8rem 1.1rem;
   background: var(--paper);
   border: 1px solid var(--line);

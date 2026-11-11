@@ -4,7 +4,7 @@
  */
 import { handleAdminApi } from './api/admin';
 import { handleLead } from './api/public';
-import { ensureDatabase } from './db/bootstrap';
+import { SCHEMA_VERSION, ensureDatabase } from './db/bootstrap';
 import { getSiteData } from './data';
 import { htmlResponse, json, redirect, securityHeaders, siteCsp, text } from './lib/http';
 import { randomToken } from './lib/crypto';
@@ -65,6 +65,7 @@ export default {
       return json({
         ok: true,
         time: new Date().toISOString(),
+        schema: SCHEMA_VERSION,
         webhooks: { n8n: Boolean(env.LEADS_WEBHOOK_URL?.trim()), trafficEngine: Boolean(env.TRAFFIC_LEADS_WEBHOOK_URL?.trim()) },
       });
     }

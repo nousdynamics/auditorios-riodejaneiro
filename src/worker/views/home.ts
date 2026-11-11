@@ -152,7 +152,7 @@ ${locationSection(s)}
 <section class="section faq-section" id="duvidas" aria-labelledby="faq-title">
   <div class="faq-section__head">
     <h2 id="faq-title" class="section__title">Bom saber antes de reservar</h2>
-    <p class="section__lead">Não encontrou sua dúvida? Escreva para <a href="mailto:${s.email}">${s.email}</a>.</p>
+    <p class="section__lead">Não encontrou sua dúvida? <a href="#consulta">Envie pelo formulário</a> e a equipe responde.</p>
   </div>
   ${faqList(homeFaqs)}
 </section>
@@ -266,7 +266,6 @@ export function finalCta(s: RenderCtx['settings']): SafeHtml {
     <p>Data, horário e número de pessoas bastam para começar. A equipe confirma a sala e as condições.</p>
     <div class="final-cta__actions">
       <a class="btn btn--gold btn--lg" href="#consulta">Agendar sala ${icon('arrow')}</a>
-      <a class="btn btn--on-dark btn--lg" href="mailto:${s.email}?subject=${encodeURIComponent('Consulta de locação de auditório')}">${icon('mail')}Enviar e-mail</a>
     </div>
   </div>
 </section>`;

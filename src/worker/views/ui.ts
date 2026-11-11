@@ -12,6 +12,26 @@ export function capacityText(r: Pick<Room, 'capacityMin' | 'capacityMax'>): stri
   return `Até ${r.capacityMax} pessoas`;
 }
 
+/**
+ * Mensagem pronta do WhatsApp na página de uma sala, ex.:
+ * "Olá! Quero o Auditório 1, para 30 a 50 pessoas. Pode me passar a disponibilidade e os valores?"
+ */
+export function roomWhatsappMessage(r: Pick<Room, 'name' | 'capacityMin' | 'capacityMax' | 'floor'>, url?: string): string {
+  const article = /^(sala|área|area)\b/i.test(r.name) ? 'a' : 'o';
+  const floor = r.floor ? ` (${r.floor})` : '';
+  const people = capacityText(r).replace(/^Até/, 'até');
+  return [`Olá! Quero ${article} ${r.name}${floor}, para ${people}.`, 'Pode me passar a disponibilidade e os valores?', url ?? '']
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** Mensagem pronta do WhatsApp na página do pacote corporativo. */
+export function corporateWhatsappMessage(url?: string): string {
+  return ['Olá! Quero o pacote corporativo, com o andar completo.', 'Pode me passar a disponibilidade e os valores?', url ?? '']
+    .filter(Boolean)
+    .join('\n');
+}
+
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2, minimumFractionDigits: 0 });
 export const formatBRL = (n: number) => brl.format(n);
 

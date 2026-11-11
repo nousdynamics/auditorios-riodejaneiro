@@ -16,6 +16,8 @@ export interface PageMeta {
   /** Tags extras no <head> (preload da imagem LCP etc.). */
   head?: SafeHtml | SafeHtml[];
   bodyClass?: string;
+  /** Mensagem pronta do botão flutuante do WhatsApp nesta página (padrão: a das configurações). */
+  whatsappMessage?: string;
 }
 
 export interface RenderCtx {
@@ -128,7 +130,7 @@ ${header(ctx)}
 ${body}
 </main>
 ${footer(ctx)}
-<a class="wa-float" href="${whatsappUrl(s)}" target="_blank" rel="noopener" aria-label="WhatsApp: ${phoneDisplay(s.whatsapp)}" title="WhatsApp" data-wa-float>${icon('whatsapp')}</a>
+<a class="wa-float" href="${whatsappUrl(s, meta.whatsappMessage)}" target="_blank" rel="noopener" aria-label="WhatsApp: ${phoneDisplay(s.whatsapp)}" title="WhatsApp" data-wa-float>${icon('whatsapp')}</a>
 <div class="cookie-note" role="region" aria-label="Aviso de cookies" data-cookie-note hidden>
   <p>Usamos cookies para medir as visitas e o resultado dos nossos anúncios. <a href="/politica-de-privacidade">Saiba mais</a></p>
   <button class="btn btn--ink btn--sm" type="button" data-cookie-ok>Entendi</button>

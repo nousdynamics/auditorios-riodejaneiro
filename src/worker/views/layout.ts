@@ -69,10 +69,15 @@ function gtag(){dataLayer.push(arguments);}
 </script>`);
 }
 
+/**
+ * Símbolo da marca ("plateia em ondas", criado com o Codex): palco/tela em dourado e duas
+ * fileiras da plateia em teal, que lembram as ondas da orla. A moldura usa currentColor
+ * (tinta no cabeçalho, branco no rodapé escuro). Arquivos em public/brand/.
+ */
 export function brandMark(cls = 'brand__mark'): SafeHtml {
-  return raw(`<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="currentColor"/><rect x="13" y="13" width="38" height="7" rx="2" fill="#E5BB65"/><g fill="#2BB3BD">${[0, 1, 2]
-    .map((r) => [0, 1, 2, 3].map((c) => `<circle cx="${17 + c * 10}" cy="${31 + r * 9.5}" r="3.3"/>`).join(''))
-    .join('')}</g></svg>`);
+  return raw(
+    `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect x="3" y="3" width="58" height="58" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><rect x="14" y="14" width="36" height="7" rx="2" fill="#E5BB65"/><path d="M12 31C23 24 41 24 52 31V38C41 31 23 31 12 38Z" fill="#2BB3BD"/><path d="M12 44C23 37 41 37 52 44V51C41 44 23 44 12 51Z" fill="#2BB3BD"/></svg>`,
+  );
 }
 
 export function layout(ctx: RenderCtx, meta: PageMeta, body: SafeHtml): SafeHtml {

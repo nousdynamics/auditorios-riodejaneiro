@@ -109,6 +109,14 @@ PNGs com fundo transparente em `public/brand/png/` (`/brand/png/...`):
 
 O nome no logo horizontal está em contornos (Hanken Grotesk 800), então o SVG e o PNG saem iguais em qualquer computador. O favicon, os ícones de app e a imagem de compartilhamento saem de `scripts/optimize-media.mjs` (`node scripts/optimize-media.mjs icons og`).
 
+## Fotos dos auditórios
+
+`public/fotos/auditorios/` tem as fotos dos 4 auditórios em tamanho cheio (1152×1536), em JPG e WebP, sem metadados da câmera (EXIF/GPS), para usar em outros materiais:
+- local: `http://localhost:8787/fotos/auditorios/auditorio-1.jpg` (com `npm run dev`);
+- no ar: `https://auditorioriodejaneiro.com.br/fotos/auditorios/auditorio-1.jpg`.
+
+Os originais ficam em `media-src/`; as versões otimizadas que o site usa ficam em `public/assets/img/`. Fotos enviadas pelo painel ficam no R2 (`/media/...`), não nesta pasta.
+
 ## Google Tag Manager
 
 O contêiner fica na variável `GTM_ID` do `wrangler.jsonc` (hoje `GTM-5GZWSDV7`; vazio = sem GTM). Ele não carrega em `localhost`, para testes locais não contarem como visita, e, em páginas pré-renderizadas pelas Speculation Rules, só carrega quando a pessoa abre a página.

@@ -169,7 +169,7 @@ export const SEED_FAQS: SeedFaq[] = [
     sortOrder: 5,
     question: 'Como confirmo minha reserva?',
     answer:
-      'Envie a consulta pelo formulário do site. A equipe verifica a data, o horário e as condições de locação e responde no WhatsApp ou no e-mail. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
+      'Envie a consulta pelo formulário do site com seu nome, WhatsApp, a data e o número de participantes. A equipe verifica a disponibilidade e as condições de locação e responde no WhatsApp. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
   },
   {
     id: 'faq-onde-ficam',

@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
  * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
  * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
  */
-export const SCHEMA_VERSION = '5';
+export const SCHEMA_VERSION = '6';
 const MIGRATIONS = [schemaSql];
 
 /**
@@ -32,6 +32,8 @@ const CONTENT_PATCHES: { table: 'faqs'; id: string; column: 'answer'; from: stri
  */
 const REBRAND_V3: { path: string[]; from: string; to: string }[] = [
   { path: ['brandName'], from: 'InterFISIO', to: DEFAULT_SETTINGS.brandName },
+  // v6: número do WhatsApp igual ao dos anúncios
+  { path: ['whatsapp'], from: '5521967770445', to: DEFAULT_SETTINGS.whatsapp },
   { path: ['brandLine'], from: 'Locação de auditórios no Rio de Janeiro', to: DEFAULT_SETTINGS.brandLine },
   { path: ['whatsappMessage'], from: 'Olá! Gostaria de consultar a locação de um auditório da InterFISIO.', to: DEFAULT_SETTINGS.whatsappMessage },
   {

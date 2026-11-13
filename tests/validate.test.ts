@@ -58,14 +58,20 @@ describe('validateLead', () => {
     expect(fieldsOf(() => validateLead({ ...base, phone: '99999-0000' }, today)).phone).toBeDefined();
   });
 
-  it('exige e-mail válido', () => {
-    expect(fieldsOf(() => validateLead({ ...base, email: '' }, today)).email).toBe('Informe seu e-mail.');
+  it('aceita só nome, WhatsApp, data e participantes', () => {
+    const lead = validateLead({ name: 'Ana', phone: '(21) 98186-0023', eventDate: '2026-12-01', people: 20, channel: 'formulario' }, today);
+    expect(lead).toMatchObject({ email: '', space: '', schedule: '', activity: '', modality: '', people: 20 });
+  });
+
+  it('e-mail é opcional, mas precisa ser válido se vier preenchido', () => {
+    expect(() => validateLead({ ...base, email: '' }, today)).not.toThrow();
     expect(fieldsOf(() => validateLead({ ...base, email: 'maria@' }, today)).email).toBeDefined();
   });
 
   it('aponta os campos obrigatórios', () => {
     const fields = fieldsOf(() => validateLead({ channel: 'formulario' }, today));
-    expect(Object.keys(fields)).toEqual(expect.arrayContaining(['name', 'email', 'phone', 'space', 'eventDate', 'people', 'schedule']));
+    expect(Object.keys(fields).sort()).toEqual(['eventDate', 'name', 'people', 'phone']);
+    expect(fields.people).toBe('Informe o número de participantes.');
   });
 
   it('recusa data no passado', () => {
@@ -112,7 +118,7 @@ describe('validateRoom', () => {
 
 describe('validateSettings', () => {
   it('aceita as configurações padrão', () => {
-    expect(validateSettings(DEFAULT_SETTINGS).whatsapp).toBe('5521967770445');
+    expect(validateSettings(DEFAULT_SETTINGS).whatsapp).toBe('5521981860023');
   });
 
   it('usa chaves com caminho para erros aninhados', () => {

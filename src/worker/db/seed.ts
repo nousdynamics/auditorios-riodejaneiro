@@ -7,7 +7,7 @@ import type { Faq, Room, SiteSettings } from '../../shared/types';
 export const DEFAULT_SETTINGS: SiteSettings = {
   brandName: 'Auditório Rio de Janeiro',
   brandLine: 'Locação de auditórios no Centro do Rio',
-  whatsapp: '5521967770445',
+  whatsapp: '5521981860023',
   whatsappMessage: 'Olá! Gostaria de consultar a locação de um auditório.',
   email: 'cursos@interfisio.com.br',
   address: {

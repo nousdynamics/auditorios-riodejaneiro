@@ -28,6 +28,9 @@ export interface RenderCtx {
   nonce: string;
   /** Contêiner do Google Tag Manager; ausente = sem GTM. */
   gtmId?: string;
+  /** Códigos de verificação por meta tag (Search Console / Bing Webmaster). */
+  googleVerification?: string;
+  bingVerification?: string;
 }
 
 const NAV = [
@@ -93,7 +96,9 @@ export function layout(ctx: RenderCtx, meta: PageMeta, body: SafeHtml): SafeHtml
 ${ctx.gtmId ? gtmHead(ctx.gtmId, ctx.nonce) : ''}
 <title>${fullTitle}</title>
 <meta name="description" content="${meta.description}">
-<link rel="canonical" href="${canonical}">
+${meta.noindex ? '' : html`<link rel="canonical" href="${canonical}">`}
+${ctx.googleVerification ? html`<meta name="google-site-verification" content="${ctx.googleVerification}">` : ''}
+${ctx.bingVerification ? html`<meta name="msvalidate.01" content="${ctx.bingVerification}">` : ''}
 ${meta.noindex ? raw('<meta name="robots" content="noindex, follow">') : raw('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">')}
 <meta name="theme-color" content="#123441">
 <meta name="color-scheme" content="light">

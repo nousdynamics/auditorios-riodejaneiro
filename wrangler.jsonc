@@ -32,6 +32,10 @@
     "SITE_URL": "https://auditorioriodejaneiro.com.br",
     // Google Tag Manager (público: aparece no HTML). Vazio = sem GTM. Não carrega em localhost.
     "GTM_ID": "GTM-5GZWSDV7",
+    // Verificação por meta tag (só o código do content="..."). Vazio = não imprime nada.
+    // Com a propriedade "Domínio" do Search Console (verificação por DNS) não é preciso.
+    "GOOGLE_SITE_VERIFICATION": "",
+    "BING_SITE_VERIFICATION": "",
     // Omini Traffic Engine: cada consulta vira mensagem nos grupos de WhatsApp. O formulário
     // "auditorio-rio" não exige web-secret. Não é chamado quando o site roda em localhost.
     "TRAFFIC_LEADS_WEBHOOK_URL": "https://omini-traffic-engine.nousdynamicslta.workers.dev/webhook/leads/auditorio-rio"

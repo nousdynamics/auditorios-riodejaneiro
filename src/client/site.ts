@@ -648,12 +648,85 @@ function cookieNote(): void {
 }
 
 // ---------------------------------------------------------------------------
+// Formulário em janela: todo link para #consulta abre o formulário da página por cima,
+// sem rolar (o mesmo <form>, movido para a janela; os IDs usados pelo GTM não mudam).
+// Sem JS ou sem <dialog>, o link continua rolando até a seção do formulário.
+// ---------------------------------------------------------------------------
+function formDialog(): void {
+  const form = $<HTMLFormElement>('#consult-form');
+  const holder = form?.parentElement;
+  if (!form || !holder || typeof HTMLDialogElement === 'undefined') return;
+
+  const dialog = document.createElement('dialog');
+  dialog.className = 'form-dialog';
+  dialog.setAttribute('aria-labelledby', 'form-dialog-title');
+  const head = document.createElement('div');
+  head.className = 'form-dialog__head';
+  const title = document.createElement('p');
+  title.className = 'form-dialog__title';
+  title.id = 'form-dialog-title';
+  title.textContent = 'Agende sua sala';
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'form-dialog__close';
+  close.setAttribute('aria-label', 'Fechar formulário');
+  close.textContent = '×';
+  head.append(title, close);
+  const lead = document.createElement('p');
+  lead.className = 'form-dialog__lead';
+  lead.textContent = 'Preencha 4 campos. A equipe responde no WhatsApp com disponibilidade e valores.';
+  const body = document.createElement('div');
+  dialog.append(head, lead, body);
+  document.body.append(dialog);
+
+  // O <form> é movido (não copiado) entre a seção e a janela. A devolução acontece na hora
+  // do fechamento; o evento "close" chega depois e só age se a janela continuar fechada.
+  const restore = () => {
+    if (dialog.open) return;
+    while (body.firstChild) holder.append(body.firstChild);
+  };
+  const shut = () => {
+    dialog.close();
+    restore();
+  };
+  const open = () => {
+    if (dialog.open) return;
+    if (!body.contains(form)) while (holder.firstChild) body.append(holder.firstChild);
+    dialog.showModal();
+    const fields = form.elements as FormFields;
+    const empty = ['name', 'phone', 'eventDate', 'people'].map((n) => fields[n]).find((el) => el && !el.value);
+    (empty ?? fields.name)?.focus();
+  };
+  // Esc: fecha e devolve na hora ("close" fica como garantia)
+  dialog.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    shut();
+  });
+  dialog.addEventListener('close', restore);
+  close.addEventListener('click', shut);
+  // clique no fundo escurecido fecha
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) shut();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href$="#consulta"]');
+    if (!a || a.origin !== location.origin) return;
+    e.preventDefault();
+    open();
+  });
+  if (location.hash === '#consulta') open();
+}
+
+// ---------------------------------------------------------------------------
 captureUtm();
 header();
 reveal();
 motion();
 planner();
 consultForm();
+formDialog();
 cookieNote();
 gallery();
 videos();

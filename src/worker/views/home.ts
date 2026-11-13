@@ -69,8 +69,9 @@ export function homePage(ctx: RenderCtx, data: SiteData): SafeHtml {
     <p class="hero__intro" data-speakable>${s.hero.intro}</p>
     <div class="hero__actions">
       <a class="btn btn--ink btn--lg" href="#consulta" data-magnetic>Agendar sala ${icon('arrow')}</a>
-      <a class="btn btn--ghost btn--lg" href="/auditorios">Ver auditórios</a>
+      <a class="btn btn--ghost btn--lg" href="#auditorios">Ver os auditórios ${icon('arrow', 'i i--down')}</a>
     </div>
+    <p class="hero__live"><span class="live-dot" aria-hidden="true"></span>${rooms.filter((r) => r.isAvailable).length || rooms.length} auditórios disponíveis para locação no Centro do Rio</p>
     <dl class="hero__facts">
       <div><dt>Locação</dt><dd>Por hora ou por turno</dd></div>
       <div><dt>Capacidade</dt><dd>${s.stats.capacityLabel || '30 a 50'} pessoas</dd></div>
@@ -84,8 +85,6 @@ export function homePage(ctx: RenderCtx, data: SiteData): SafeHtml {
   </div>
 </section>
 
-${seatPlanner(rooms)}
-
 <section class="section rooms" id="auditorios" aria-labelledby="rooms-title">
   <header class="section__head">
     <h2 id="rooms-title" class="section__title">Seu encontro tem lugar</h2>
@@ -96,6 +95,8 @@ ${seatPlanner(rooms)}
   </div>
   <p class="rooms__more"><a class="link-arrow" href="/auditorios">Comparar os auditórios lado a lado ${icon('arrow')}</a></p>
 </section>
+
+${seatPlanner(rooms)}
 
 <section class="tour" aria-label="Vídeo: por dentro dos auditórios">
   <div class="tour__frame" data-reveal>

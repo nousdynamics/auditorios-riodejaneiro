@@ -7,7 +7,7 @@ import { DEFAULT_SETTINGS, SEED_FAQS, SEED_ROOMS } from './seed';
  * Aumente quando adicionar um arquivo em migrations/ (inclua-o em MIGRATIONS) ou um item em
  * CONTENT_PATCHES. Bancos já criados rodam de novo o schema (idempotente) e os patches.
  */
-export const SCHEMA_VERSION = '6';
+export const SCHEMA_VERSION = '7';
 const MIGRATIONS = [schemaSql];
 
 /**
@@ -15,6 +15,14 @@ const MIGRATIONS = [schemaSql];
  * texto se ele ainda estiver igual ao original, para não sobrescrever edições do painel.
  */
 const CONTENT_PATCHES: { table: 'faqs'; id: string; column: 'answer'; from: string; to: string }[] = [
+  {
+    // v7: formulário curto (nome, WhatsApp, data, participantes) e resposta pelo WhatsApp
+    table: 'faqs',
+    id: 'faq-confirmar-reserva',
+    column: 'answer',
+    from: 'Envie a consulta pelo formulário do site. A equipe verifica a data, o horário e as condições de locação e responde no WhatsApp ou no e-mail. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
+    to: 'Envie a consulta pelo formulário do site com seu nome, WhatsApp, a data e o número de participantes. A equipe verifica a disponibilidade e as condições de locação e responde no WhatsApp. A reserva fica confirmada quando vocês combinam os detalhes e agendam a sala.',
+  },
   {
     // v2: o formulário passou a enviar a consulta direto (sem mensagem para revisar)
     table: 'faqs',

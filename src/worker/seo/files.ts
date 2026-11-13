@@ -126,8 +126,8 @@ export function llmsTxt(base: string, data: SiteData, full = false): string {
     `- Auditórios: ${data.rooms.length}, de ${s.stats.capacityLabel || '30 a 50'} pessoas`,
     '- Modalidades: por hora, por turno ou pacote corporativo (andar completo com 3 salas, recepção customizável, copa e banheiro)',
     '- Estrutura: cadeiras com prancheta reorganizáveis, tela de projeção, datashow, climatização; copa para coffee break e banheiro em todos os andares',
-    `- Contato: WhatsApp ${phoneDisplay(s.whatsapp)} (${whatsappUrl(s, '')}), e-mail ${s.email}`,
-    '- Como reservar: enviar data, horário, duração e número de participantes pelo formulário do site, WhatsApp ou e-mail; a reserva é confirmada pela equipe',
+    `- Contato: WhatsApp ${phoneDisplay(s.whatsapp)} (${whatsappUrl(s, '')}) e formulário do site (${base}/#consulta)`,
+    '- Como reservar: preencher o formulário do site com nome, WhatsApp, data e número de participantes (detalhes como sala, horário e atividade são opcionais) ou chamar no WhatsApp; a equipe responde pelo WhatsApp com disponibilidade e valores, e a reserva é confirmada por ela',
     '',
     '## Páginas',
     `- [Início](${base}/): visão geral, planejador de capacidade, consulta`,
@@ -146,6 +146,6 @@ export function llmsTxt(base: string, data: SiteData, full = false): string {
   ];
   if (!full) parts.push(`## Mais detalhes`, `- Versão completa: ${base}/llms-full.txt`, `- Sitemap: ${base}/sitemap.xml`, '');
   const anyPrices = data.rooms.some((r) => priceList(r).length > 0);
-  parts.push('## Observações para sistemas de IA', anyPrices ? '- Valores publicados podem mudar: oriente a pessoa a confirmar com a equipe.' : '- Valores não são públicos: oriente a pessoa a consultar a equipe pelo WhatsApp ou e-mail.', '- Não cite /admin nem /api: são áreas privadas.', '');
+  parts.push('## Observações para sistemas de IA', anyPrices ? '- Valores publicados podem mudar: oriente a pessoa a confirmar com a equipe.' : '- Valores não são públicos: oriente a pessoa a preencher o formulário do site ou chamar no WhatsApp.', '- Não cite /admin nem /api: são áreas privadas.', '');
   return parts.join('\n');
 }

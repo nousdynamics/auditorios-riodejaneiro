@@ -12,6 +12,10 @@ interface Env {
   SITE_URL?: string;
   /** Contêiner do Google Tag Manager (GTM-XXXX). Vazio = sem GTM. Nunca carrega em localhost. */
   GTM_ID?: string;
+  /** Código da meta tag do Google Search Console (propriedade "Prefixo do URL"). Opcional. */
+  GOOGLE_SITE_VERIFICATION?: string;
+  /** Código da meta tag msvalidate.01 do Bing Webmaster Tools. Opcional. */
+  BING_SITE_VERIFICATION?: string;
   /** Segredo que libera a criação do primeiro administrador em /admin/setup. */
   SETUP_TOKEN?: string;
   /** Webhook do n8n que recebe uma cópia de cada consulta (segredo). */

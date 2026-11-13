@@ -50,21 +50,25 @@ export default {
     let path = url.pathname;
     const method = request.method.toUpperCase();
 
-    // URLs canônicas: sem barra final e em minúsculas (exceto mídia/API)
-    if (path.length > 1 && path.endsWith('/') && !path.startsWith('/api/')) {
-      return redirect(path.replace(/\/+$/, '') + url.search, 301);
+    // URL canônica: sem barra final e em minúsculas (exceto mídia/API)
+    let canonicalPath = path;
+    if (canonicalPath.length > 1 && canonicalPath.endsWith('/') && !canonicalPath.startsWith('/api/')) {
+      canonicalPath = canonicalPath.replace(/\/+$/, '') || '/';
     }
-    if (/[A-Z]/.test(path) && !path.startsWith('/media/') && !path.startsWith('/api/')) {
-      return redirect(path.toLowerCase() + url.search, 301);
+    if (/[A-Z]/.test(canonicalPath) && !canonicalPath.startsWith('/media/') && !canonicalPath.startsWith('/api/')) {
+      canonicalPath = canonicalPath.toLowerCase();
     }
 
-    // Domínio único: o endereço *.workers.dev não passa pelas regras de segurança do domínio
-    // (WAF, bots, Access). Páginas redirecionam; envios e API são recusados.
+    // Endereço único (https + domínio do SITE_URL): http://, www. e *.workers.dev vão para o
+    // domínio num só 301 (evita conteúdo duplicado no Google). O *.workers.dev também não
+    // passaria pelas regras de segurança do domínio, então envios e API fora dele são recusados.
     const canonical = env.SITE_URL ? new URL(env.SITE_URL) : null;
-    if (canonical && url.hostname.endsWith('.workers.dev') && url.host !== canonical.host) {
-      if (method === 'GET' || method === 'HEAD') return redirect(canonical.origin + path + url.search, 301);
+    const localHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
+    if (canonical && !localHost && (url.host !== canonical.host || url.protocol !== canonical.protocol)) {
+      if (method === 'GET' || method === 'HEAD') return redirect(canonical.origin + canonicalPath + url.search, 301);
       return json({ error: `Use ${canonical.origin}.` }, { status: 403 });
     }
+    if (canonicalPath !== path) return redirect(canonicalPath + url.search, 301);
 
     if (path.startsWith('/assets/video/')) return serveVideo(request, env);
 
@@ -127,7 +131,17 @@ export default {
     const nonce = randomToken(16);
     const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
     const gtmId = env.GTM_ID && /^GTM-[A-Z0-9]{4,12}$/.test(env.GTM_ID) && !isLocal ? env.GTM_ID : undefined;
-    const render: RenderCtx = { base, settings: data.settings, path, nonce, gtmId };
+    // Verificação do Search Console / Bing por meta tag (opcional; vazio = nada no HTML)
+    const verify = (v?: string) => (v && /^[A-Za-z0-9_-]{10,100}$/.test(v.trim()) ? v.trim() : undefined);
+    const render: RenderCtx = {
+      base,
+      settings: data.settings,
+      path,
+      nonce,
+      gtmId,
+      googleVerification: verify(env.GOOGLE_SITE_VERIFICATION),
+      bingVerification: verify(env.BING_SITE_VERIFICATION),
+    };
     const page = (body: ReturnType<typeof homePage>, status = 200) =>
       htmlResponse(body, { status, cacheSeconds: status === 200 ? 60 : 0, csp: siteCsp(nonce) });
 

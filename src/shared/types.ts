@@ -102,7 +102,7 @@ export interface SiteSettings {
   brandName: string;
   /** Linha abaixo do nome da marca no cabeçalho. */
   brandLine: string;
-  /** Somente dígitos, com DDI: 5521967770445 */
+  /** Somente dígitos, com DDI: 5521981860023 */
   whatsapp: string;
   /** Mensagem inicial do botão de WhatsApp. */
   whatsappMessage: string;

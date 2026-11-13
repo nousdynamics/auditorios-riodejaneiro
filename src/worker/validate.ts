@@ -47,7 +47,7 @@ function num(o: Obj, key: string, errors: Errors, { min = 0, max = 1e9, integer 
   }
   const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'));
   if (!Number.isFinite(n) || n < min || n > max || (integer && !Number.isInteger(n))) {
-    errors.add(key, `${label}: use um número entre ${min} e ${max}.`);
+    errors.add(key, `${label.charAt(0).toUpperCase()}${label.slice(1)}: use um número entre ${min} e ${max}.`);
     return null;
   }
   return n;
@@ -250,7 +250,7 @@ export function validateLead(body: unknown, today = new Date()): LeadInput {
   const e = new Errors();
   const name = str(body, 'name', e, { max: 100, required: true, label: 'seu nome' });
   if (name && name.length < 2) e.add('name', 'Informe seu nome.');
-  const email = str(body, 'email', e, { max: 120, required: true, label: 'seu e-mail' });
+  const email = str(body, 'email', e, { max: 120 });
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.add('email', 'E-mail inválido.');
   const phone = normalizePhone(str(body, 'phone', e, { max: 30, required: true, label: 'seu WhatsApp' }));
   if (phone && phone.length < 12) e.add('phone', 'WhatsApp incompleto: inclua o DDD.');
@@ -264,7 +264,7 @@ export function validateLead(body: unknown, today = new Date()): LeadInput {
       if (eventDate < min) e.add('eventDate', 'Escolha uma data a partir de hoje.');
     }
   }
-  const people = num(body, 'people', e, { min: 1, max: 2000, integer: true, nullable: false, label: 'Número de participantes' }) ?? 0;
+  const people = num(body, 'people', e, { min: 1, max: 2000, integer: true, nullable: false, label: 'o número de participantes' }) ?? 0;
   const channel = CHANNELS.includes(body.channel as LeadChannel) ? (body.channel as LeadChannel) : 'formulario';
   const utm: Record<string, string> = {};
   if (isObj(body.utm)) {
@@ -276,12 +276,12 @@ export function validateLead(body: unknown, today = new Date()): LeadInput {
     name,
     email,
     phone,
-    space: str(body, 'space', e, { max: 80, required: true, label: 'o espaço de interesse' }),
+    space: str(body, 'space', e, { max: 80 }),
     activity: str(body, 'activity', e, { max: 80 }),
     eventDate,
     people,
     modality: str(body, 'modality', e, { max: 60 }),
-    schedule: str(body, 'schedule', e, { max: 80, required: true, label: 'o horário e a duração' }),
+    schedule: str(body, 'schedule', e, { max: 80 }),
     details: str(body, 'details', e, { max: 1500 }),
     channel,
     utm,

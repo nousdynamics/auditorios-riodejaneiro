@@ -328,7 +328,7 @@ function consultForm(): void {
     if (!result.hidden) showForm();
     // foca o primeiro campo vazio depois da rolagem
     setTimeout(() => {
-      const empty = ['name', 'email', 'phone', 'eventDate', 'people', 'schedule'].map((n) => fields[n]).find((f) => f && !f.value);
+      const empty = ['name', 'phone', 'eventDate', 'people'].map((n) => fields[n]).find((f) => f && !f.value);
       empty?.focus({ preventScroll: true });
     }, reducedMotion ? 0 : 650);
   });
@@ -352,6 +352,8 @@ function consultForm(): void {
     const el = fields[name];
     const wrap = el?.closest('.field');
     if (!wrap) return;
+    // campo dentro do bloco opcional fechado: abre para a pessoa ver o erro
+    el.closest('details')?.setAttribute('open', '');
     wrap.classList.add('is-invalid');
     el.setAttribute('aria-invalid', 'true');
     const p = document.createElement('p');
@@ -368,14 +370,12 @@ function consultForm(): void {
     const email = (data.email ?? '').trim();
     const errors: Record<string, string> = {};
     if ((data.name ?? '').trim().length < 2) errors.name = 'Informe seu nome.';
-    if (!email) errors.email = 'Informe seu e-mail.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
     const phoneDigits = (data.phone ?? '').replace(/\D/g, '');
     if (!phoneDigits) errors.phone = 'Informe seu WhatsApp.';
     else if (phoneDigits.length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
     if (!data.eventDate) errors.eventDate = 'Escolha a data pretendida.';
     if (!data.people || Number(data.people) < 1) errors.people = 'Informe quantas pessoas vão participar.';
-    if (!(data.schedule ?? '').trim()) errors.schedule = 'Informe o horário e a duração.';
     if (Object.keys(errors).length) {
       Object.entries(errors).forEach(([k, v]) => markError(k, v));
       status.textContent = 'Revise os campos destacados.';
@@ -402,8 +402,13 @@ function consultForm(): void {
           elapsedMs: Math.round(performance.now() - startedAt),
         }),
       });
-      if (res.ok) sent = true;
-      else {
+      if (res.ok) {
+        sent = true;
+        // Conversão para o GTM (sem dados pessoais): gatilho do evento "lead_enviado"
+        const w = window as unknown as { dataLayer?: unknown[] };
+        w.dataLayer = w.dataLayer || [];
+        w.dataLayer.push({ event: 'lead_enviado', lead: { space: data.space, activity: data.activity, people: Number(data.people) } });
+      } else {
         const body = (await res.json().catch(() => ({}))) as { error?: string; fields?: Record<string, string> };
         if (res.status === 422 && body.fields) {
           Object.entries(body.fields).forEach(([k, v]) => markError(k, v));
@@ -423,8 +428,9 @@ function consultForm(): void {
 
     const firstName = data.name.trim().split(/\s+/)[0];
     const when = formatDateBr(data.eventDate);
-    const about = data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
-    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder no WhatsApp ou no e-mail ${email} com disponibilidade, recursos e valores (${about}).`;
+    const about = !data.space || data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
+    const channel = email ? `no WhatsApp ou no e-mail ${email}` : 'no WhatsApp';
+    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder ${channel} com disponibilidade, recursos e valores (${about}).`;
 
     try {
       sessionStorage.removeItem(DRAFT_KEY);

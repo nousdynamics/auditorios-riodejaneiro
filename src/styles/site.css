@@ -3168,10 +3168,13 @@ html:has(.form-dialog[open]) {
   grid-auto-flow: column;
   grid-auto-columns: min(360px, 84%);
   gap: 1.25rem;
+  /* só rolagem lateral: sem overflow-y explícito o navegador liga a barra vertical quando
+     o card cresce no hover (inclinação/sombra) */
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  padding: 0.25rem 0.25rem 1rem;
+  padding: 0.75rem 0.25rem 1.25rem;
   scrollbar-width: thin;
 }
 .lp-carousel__track > * {

@@ -16,6 +16,8 @@ export interface PageMeta {
   /** Tags extras no <head> (preload da imagem LCP etc.). */
   head?: SafeHtml | SafeHtml[];
   bodyClass?: string;
+  /** Página de anúncio: cabeçalho só com a marca e "Agendar sala", rodapé mínimo. */
+  minimal?: boolean;
   /** Mensagem pronta do botão flutuante do WhatsApp nesta página (padrão: a das configurações). */
   whatsappMessage?: string;
 }
@@ -135,11 +137,11 @@ ${(meta.jsonLd ?? []).map((d) => html`<script type="application/ld+json">${jsonS
 <body class="${meta.bodyClass ?? ''}">
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 <div class="progress" aria-hidden="true"></div>
-${header(ctx)}
+${meta.minimal ? minimalHeader(ctx) : header(ctx)}
 <main id="conteudo">
 ${body}
 </main>
-${footer(ctx)}
+${meta.minimal ? minimalFooter(ctx) : footer(ctx)}
 <a class="wa-float" href="${whatsappUrl(s, meta.whatsappMessage)}" target="_blank" rel="noopener" aria-label="WhatsApp: ${phoneDisplay(s.whatsapp)}" title="WhatsApp" data-wa-float>${icon('whatsapp')}</a>
 <div class="cookie-note" role="region" aria-label="Aviso de cookies" data-cookie-note hidden>
   <p>Usamos cookies para medir as visitas e o resultado dos nossos anúncios. <a href="/politica-de-privacidade">Saiba mais</a></p>
@@ -147,6 +149,29 @@ ${footer(ctx)}
 </div>
 </body>
 </html>`;
+}
+
+function minimalHeader(ctx: RenderCtx): SafeHtml {
+  const s = ctx.settings;
+  return html`<header class="site-header site-header--min" data-header>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="${s.brandName}: página inicial">
+      ${brandMark()}
+      <span class="brand__text"><span class="brand__name">${s.brandName}</span><span class="brand__line">${s.brandLine}</span></span>
+    </a>
+    <a class="btn btn--ink btn--sm" href="#consulta">Agendar sala</a>
+  </div>
+</header>`;
+}
+
+function minimalFooter(ctx: RenderCtx): SafeHtml {
+  const s = ctx.settings;
+  return html`<footer class="site-footer site-footer--min">
+  <div class="site-footer__base">
+    <p>© ${new Date().getFullYear()} ${s.brandName}. ${fullAddress(s)}.</p>
+    <p class="site-footer__links"><a href="/">Site completo</a> <a href="/politica-de-privacidade">Política de privacidade</a></p>
+  </div>
+</footer>`;
 }
 
 function header(ctx: RenderCtx): SafeHtml {

@@ -3044,3 +3044,205 @@ html:has(.form-dialog[open]) {
     padding: 1.1rem 1rem 1.4rem;
   }
 }
+
+/* ---------- Página de anúncio /rio-de-janeiro ---------- */
+.site-header--min .site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.site-header--min .btn {
+  white-space: nowrap;
+}
+.site-footer--min {
+  padding-top: 0;
+}
+.site-footer--min a {
+  color: inherit;
+}
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+.lp-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: min(86svh, 760px);
+  overflow: hidden;
+  background: var(--ink);
+  color: #fff;
+}
+.lp-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.lp-hero__bg picture,
+.lp-hero__bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lp-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgb(18 52 65 / 0.94) 0%, rgb(18 52 65 / 0.8) 45%, rgb(18 52 65 / 0.35) 100%),
+    linear-gradient(0deg, rgb(18 52 65 / 0.7), transparent 55%);
+}
+.lp-hero__inner {
+  width: min(var(--max), 100% - 2rem);
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 0;
+}
+.lp-hero__content {
+  max-width: 40rem;
+}
+.lp-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.lp-hero__badge .i {
+  width: 16px;
+  height: 16px;
+  color: var(--gold);
+}
+.lp-hero__title {
+  margin: 1.1rem 0 1rem;
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 6vw, 4.3rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.lp-hero__lead {
+  max-width: 34rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
+  color: rgb(255 255 255 / 0.86);
+}
+.lp-hero .hero__live {
+  color: #fff;
+}
+.lp-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.6rem;
+}
+@media (max-width: 640px) {
+  .lp-hero {
+    min-height: 0;
+  }
+}
+@media (max-width: 480px) {
+  .lp-hero__actions .btn {
+    width: 100%;
+  }
+}
+/* min-width: 0 impede que a trilha (4 salas lado a lado) alargue a página */
+.lp-rooms {
+  overflow-x: clip;
+}
+.lp-carousel {
+  min-width: 0;
+  max-width: 100%;
+}
+.lp-carousel__track {
+  max-width: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(360px, 84%);
+  gap: 1.25rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 0.25rem 0.25rem 1rem;
+  scrollbar-width: thin;
+}
+.lp-carousel__track > * {
+  scroll-snap-align: start;
+}
+.lp-carousel__track:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: var(--radius);
+}
+.lp-carousel__nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.lp-carousel__btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.lp-carousel__btn .i {
+  width: 18px;
+  height: 18px;
+}
+.lp-carousel__btn--prev .i {
+  transform: rotate(180deg);
+}
+.lp-carousel__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.lp-why__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lp-why__grid li {
+  padding: 1.4rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.lp-why__grid h3 {
+  margin: 0.9rem 0 0.35rem;
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+.lp-why__grid p {
+  margin: 0;
+  color: var(--muted);
+}
+.lp-why__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--mist);
+  color: var(--teal);
+}
+.lp-why__icon .i {
+  width: 22px;
+  height: 22px;
+}

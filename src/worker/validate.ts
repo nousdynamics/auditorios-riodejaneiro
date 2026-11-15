@@ -250,11 +250,11 @@ export function validateLead(body: unknown, today = new Date()): LeadInput {
   const e = new Errors();
   const name = str(body, 'name', e, { max: 100, required: true, label: 'seu nome' });
   if (name && name.length < 2) e.add('name', 'Informe seu nome.');
-  const email = str(body, 'email', e, { max: 120 });
+  const email = str(body, 'email', e, { max: 120, required: true, label: 'seu e-mail' });
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.add('email', 'E-mail inválido.');
   const phone = normalizePhone(str(body, 'phone', e, { max: 30, required: true, label: 'seu WhatsApp' }));
   if (phone && phone.length < 12) e.add('phone', 'WhatsApp incompleto: inclua o DDD.');
-  const eventDate = str(body, 'eventDate', e, { max: 10, required: true, label: 'a data pretendida' });
+  const eventDate = str(body, 'eventDate', e, { max: 10 });
   if (eventDate) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(eventDate) || Number.isNaN(Date.parse(eventDate))) e.add('eventDate', 'Data inválida.');
     else {

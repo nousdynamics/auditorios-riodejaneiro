@@ -32,7 +32,7 @@ const WHY = [
   {
     icon: 'whatsapp',
     title: 'Resposta rápida',
-    text: 'Preencha 4 campos e a equipe responde no WhatsApp com disponibilidade e valores.',
+    text: 'Envie seus dados e a equipe responde no WhatsApp com disponibilidade e valores.',
   },
 ];
 
@@ -103,7 +103,7 @@ ${faqs.length
 <section class="section booking" id="consulta" aria-labelledby="consulta-title">
   <div class="booking__intro">
     <h2 id="consulta-title" class="section__title">Agende sua sala</h2>
-    <p class="section__lead">Preencha 4 campos. A equipe responde no WhatsApp com disponibilidade e valores.</p>
+    <p class="section__lead">Informe seus dados e receba no WhatsApp a disponibilidade e os valores para o seu evento.</p>
     ${steps()}
   </div>
   <div class="booking__form">${consultForm(s, rooms)}</div>

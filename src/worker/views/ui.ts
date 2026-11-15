@@ -225,63 +225,49 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
   const spaces = [GUIDANCE_SPACE, ...rooms.map((r) => r.name), CORPORATE_SPACE];
   const preset = opts.preset ?? GUIDANCE_SPACE;
   return html`<form class="consult" id="consult-form" novalidate data-guidance="${GUIDANCE_SPACE}">
+    <div class="field field--wide">
+      <label for="f-space">Sala de interesse</label>
+      <select id="f-space" name="space">
+        ${spaces.map((sp) => html`<option value="${sp}" ${raw(sp === preset ? 'selected' : '')}>${sp === GUIDANCE_SPACE ? 'Ainda não sei — quero sugestões' : sp}</option>`)}
+      </select>
+    </div>
+    <div class="field field--wide">
+      <label for="f-name">Nome completo</label>
+      <input id="f-name" name="name" required autocomplete="name" placeholder="Seu nome" maxlength="100">
+    </div>
     <div class="field">
-      <label for="f-name">Seu nome</label>
-      <input id="f-name" name="name" required autocomplete="name" placeholder="Como podemos chamar você?" maxlength="100">
+      <label for="f-email">E-mail</label>
+      <input id="f-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
     </div>
     <div class="field">
       <label for="f-phone">WhatsApp</label>
       <input id="f-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="(21) 90000-0000" maxlength="20">
     </div>
-    <div class="field">
-      <label for="f-date">Data pretendida</label>
-      <input id="f-date" name="eventDate" type="date" required>
+    <div class="field field--wide">
+      <label for="f-activity">Tipo de evento <span class="opt">(opcional)</span></label>
+      <select id="f-activity" name="activity"><option value="">Selecione</option>${ACTIVITIES.map((a) => html`<option>${a}</option>`)}</select>
     </div>
     <div class="field">
-      <label for="f-people">Nº de participantes</label>
+      <label for="f-people">Participantes</label>
       <input id="f-people" name="people" type="number" min="1" max="2000" inputmode="numeric" required placeholder="Ex.: 30">
     </div>
-    <details class="consult__more field--wide">
-      <summary>Adicionar detalhes <span class="opt">(opcional)</span></summary>
-      <div class="consult__more-grid">
-        <div class="field field--wide">
-          <label for="f-space">Espaço de interesse</label>
-          <select id="f-space" name="space">
-            ${spaces.map((sp) => html`<option ${raw(sp === preset ? 'selected' : '')}>${sp}</option>`)}
-          </select>
-        </div>
-        <div class="field">
-          <label for="f-email">E-mail</label>
-          <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
-        </div>
-        <div class="field">
-          <label for="f-activity">Atividade</label>
-          <select id="f-activity" name="activity"><option value="">Selecione</option>${ACTIVITIES.map((a) => html`<option>${a}</option>`)}</select>
-        </div>
-        <div class="field">
-          <label for="f-modality">Modalidade</label>
-          <select id="f-modality" name="modality">
-            <option value="" ${raw(opts.modality ? '' : 'selected')}>Selecione</option>
-            ${MODALITIES.map((m) => html`<option ${raw(m === opts.modality ? 'selected' : '')}>${m}</option>`)}
-          </select>
-        </div>
-        <div class="field">
-          <label for="f-schedule">Horário e duração</label>
-          <input id="f-schedule" name="schedule" placeholder="Ex.: das 9h às 13h" maxlength="80">
-        </div>
-        <div class="field field--wide">
-          <label for="f-details">O que você precisa?</label>
-          <textarea id="f-details" name="details" rows="3" maxlength="1500" placeholder="Conte o formato da atividade e os recursos de que precisa."></textarea>
-        </div>
-      </div>
-    </details>
+    <div class="field">
+      <label for="f-date">Data <span class="opt">(opcional)</span></label>
+      <input id="f-date" name="eventDate" type="date">
+    </div>
+    <div class="field field--wide">
+      <label for="f-details">Detalhes <span class="opt">(opcional)</span></label>
+      <textarea id="f-details" name="details" rows="3" maxlength="1500" placeholder="Horário, equipamentos, observações..."></textarea>
+    </div>
     <div class="field field--wide field--hp" aria-hidden="true">
       <label for="f-website">Não preencha este campo</label>
       <input id="f-website" name="website" tabindex="-1" autocomplete="off">
     </div>
+    <div class="field field--wide consult__consent-wrap">
+      <label class="consult__consent"><input id="f-consent" name="consent" type="checkbox" value="1" required><span>Li e concordo com a <a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+    </div>
     <div class="field--wide consult__submit">
       <button class="btn btn--gold btn--lg" type="submit">Solicitar agendamento</button>
-      <p class="consult__note">Usamos seus dados só para responder a esta consulta. <a href="/politica-de-privacidade">Política de privacidade</a></p>
     </div>
     <p class="consult__status field--wide" role="status" aria-live="polite"></p>
   </form>
@@ -297,7 +283,7 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
 
 export function steps(): SafeHtml {
   return html`<ol class="steps">
-    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Preencha o formulário</strong><p>Nome, WhatsApp, data e número de participantes.</p></div></li>
+    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Preencha o formulário</strong><p>Sala, nome, e-mail, WhatsApp e número de participantes.</p></div></li>
     <li><span class="steps__n" aria-hidden="true">2</span><div><strong>Receba nossa mensagem</strong><p>A equipe responde no WhatsApp com disponibilidade, recursos e valores.</p></div></li>
     <li><span class="steps__n" aria-hidden="true">3</span><div><strong>Agende a sala para o seu evento</strong><p>Com tudo combinado, a data fica reservada para você.</p></div></li>
   </ol>`;

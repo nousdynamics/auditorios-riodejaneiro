@@ -139,7 +139,7 @@ export async function leadDetailView(ctx: ViewCtx): Promise<void> {
   );
 
   const digits = lead.phone.replace(/\D/g, '');
-  const msg = `Olá, ${lead.name}! Recebemos sua consulta para ${lead.space} em ${fmtDate(lead.eventDate)}.`;
+  const msg = `Olá, ${lead.name}! Recebemos sua consulta para ${lead.space}${lead.eventDate ? ` em ${fmtDate(lead.eventDate)}` : ''}.`;
   const actions = h(
     'div',
     { class: 'page-actions' },

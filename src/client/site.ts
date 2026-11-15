@@ -328,7 +328,7 @@ function consultForm(): void {
     if (!result.hidden) showForm();
     // foca o primeiro campo vazio depois da rolagem
     setTimeout(() => {
-      const empty = ['name', 'phone', 'eventDate', 'people'].map((n) => fields[n]).find((f) => f && !f.value);
+      const empty = ['name', 'email', 'phone', 'people'].map((n) => fields[n]).find((f) => f && !f.value);
       empty?.focus({ preventScroll: true });
     }, reducedMotion ? 0 : 650);
   });
@@ -370,12 +370,13 @@ function consultForm(): void {
     const email = (data.email ?? '').trim();
     const errors: Record<string, string> = {};
     if ((data.name ?? '').trim().length < 2) errors.name = 'Informe seu nome.';
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
+    if (!email) errors.email = 'Informe seu e-mail.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
     const phoneDigits = (data.phone ?? '').replace(/\D/g, '');
     if (!phoneDigits) errors.phone = 'Informe seu WhatsApp.';
     else if (phoneDigits.length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
-    if (!data.eventDate) errors.eventDate = 'Escolha a data pretendida.';
     if (!data.people || Number(data.people) < 1) errors.people = 'Informe quantas pessoas vão participar.';
+    if (fields.consent && !fields.consent.checked) errors.consent = 'Marque para continuar.';
     if (Object.keys(errors).length) {
       Object.entries(errors).forEach(([k, v]) => markError(k, v));
       status.textContent = 'Revise os campos destacados.';
@@ -427,10 +428,10 @@ function consultForm(): void {
     if (!sent) return;
 
     const firstName = data.name.trim().split(/\s+/)[0];
-    const when = formatDateBr(data.eventDate);
-    const about = !data.space || data.space === form.dataset.guidance ? when : `${data.space}, ${when}`;
+    const when = data.eventDate ? formatDateBr(data.eventDate) : '';
+    const about = [data.space && data.space !== form.dataset.guidance ? data.space : '', when].filter(Boolean).join(', ');
     const channel = email ? `no WhatsApp ou no e-mail ${email}` : 'no WhatsApp';
-    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder ${channel} com disponibilidade, recursos e valores (${about}).`;
+    summary.textContent = `Obrigado, ${firstName}. A equipe vai responder ${channel} com disponibilidade, recursos e valores${about ? ` (${about})` : ''}.`;
 
     try {
       sessionStorage.removeItem(DRAFT_KEY);
@@ -674,7 +675,7 @@ function formDialog(): void {
   head.append(title, close);
   const lead = document.createElement('p');
   lead.className = 'form-dialog__lead';
-  lead.textContent = 'Preencha 4 campos. A equipe responde no WhatsApp com disponibilidade e valores.';
+  lead.textContent = 'Informe seus dados e receba no WhatsApp a disponibilidade e os valores para o seu evento.';
   const body = document.createElement('div');
   dialog.append(head, lead, body);
   document.body.append(dialog);
@@ -694,7 +695,7 @@ function formDialog(): void {
     if (!body.contains(form)) while (holder.firstChild) body.append(holder.firstChild);
     dialog.showModal();
     const fields = form.elements as FormFields;
-    const empty = ['name', 'phone', 'eventDate', 'people'].map((n) => fields[n]).find((el) => el && !el.value);
+    const empty = ['name', 'email', 'phone', 'people'].map((n) => fields[n]).find((el) => el && !el.value);
     (empty ?? fields.name)?.focus();
   };
   // Esc: fecha e devolve na hora ("close" fica como garantia)

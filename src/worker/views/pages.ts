@@ -127,7 +127,7 @@ export function roomFaqs(r: Room, s: SiteData['settings']) {
     },
     {
       question: `Como alugar o ${r.name}?`,
-      answer: `Preencha o formulário nesta página com seu nome, WhatsApp, a data e o número de participantes. A equipe responde no WhatsApp com disponibilidade e valores; a locação pode ser por hora ou por turno.`,
+      answer: `Preencha o formulário nesta página com seu nome, e-mail, WhatsApp e o número de participantes. A equipe responde no WhatsApp com disponibilidade e valores; a locação pode ser por hora ou por turno.`,
     },
   ];
 }

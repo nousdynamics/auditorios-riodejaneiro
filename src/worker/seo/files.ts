@@ -128,7 +128,7 @@ export function llmsTxt(base: string, data: SiteData, full = false): string {
     '- Modalidades: por hora, por turno ou pacote corporativo (andar completo com 3 salas, recepção customizável, copa e banheiro)',
     '- Estrutura: cadeiras com prancheta reorganizáveis, tela de projeção, datashow, climatização; copa para coffee break e banheiro em todos os andares',
     `- Contato: WhatsApp ${phoneDisplay(s.whatsapp)} (${whatsappUrl(s, '')}) e formulário do site (${base}/#consulta)`,
-    '- Como reservar: preencher o formulário do site com nome, WhatsApp, data e número de participantes (detalhes como sala, horário e atividade são opcionais) ou chamar no WhatsApp; a equipe responde pelo WhatsApp com disponibilidade e valores, e a reserva é confirmada por ela',
+    '- Como reservar: preencher o formulário do site com a sala de interesse, nome, e-mail, WhatsApp e número de participantes (tipo de evento, data e detalhes são opcionais) ou chamar no WhatsApp; a equipe responde pelo WhatsApp com disponibilidade e valores, e a reserva é confirmada por ela',
     '',
     '## Páginas',
     `- [Início](${base}/): visão geral, planejador de capacidade, consulta`,

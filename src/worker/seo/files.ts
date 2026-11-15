@@ -22,6 +22,7 @@ export function sitemapXml(base: string, data: SiteData): string {
       images: [{ loc: `${base}/og-image.jpg`, title: 'Auditórios para locação no Centro do Rio de Janeiro' }],
     },
     { loc: `${base}/auditorios`, lastmod: contentDate, priority: '0.9', changefreq: 'weekly' },
+    { loc: `${base}/rio-de-janeiro`, lastmod: contentDate, priority: '0.8', changefreq: 'weekly' },
     ...data.rooms.map((r) => ({
       loc: `${base}/auditorios/${r.slug}`,
       lastmod: r.updatedAt.slice(0, 10),
@@ -132,6 +133,7 @@ export function llmsTxt(base: string, data: SiteData, full = false): string {
     '## Páginas',
     `- [Início](${base}/): visão geral, planejador de capacidade, consulta`,
     `- [Auditórios](${base}/auditorios): lista e comparativo dos auditórios`,
+    `- [Aluguel de auditório no Rio de Janeiro](${base}/rio-de-janeiro): página direta com as salas e o formulário de agendamento`,
     ...data.rooms.map((r) => `- [${r.name}](${base}/auditorios/${r.slug}): ${r.summary}`),
     `- [Pacote corporativo](${base}/pacote-corporativo): andar completo para eventos corporativos`,
     `- [Política de privacidade](${base}/politica-de-privacidade)`,

@@ -11,6 +11,7 @@ import { randomToken } from './lib/crypto';
 import { serveMedia, serveVideo } from './media';
 import { llmsTxt, robotsTxt, sitemapXml } from './seo/files';
 import { homePage } from './views/home';
+import { RIO_LANDING_PATH, rioLandingPage } from './views/landing';
 import type { RenderCtx } from './views/layout';
 import { adminShell, corporatePage, notFoundPage, privacyPage, roomPage, roomsPage } from './views/pages';
 
@@ -149,6 +150,8 @@ export default {
     if (path === '/auditorios') return page(roomsPage(render, data));
     if (path === '/pacote-corporativo') return page(corporatePage(render, data));
     if (path === '/politica-de-privacidade') return page(privacyPage(render));
+    if (path === RIO_LANDING_PATH) return page(rioLandingPage(render, data));
+    if (path === '/rio') return redirect(RIO_LANDING_PATH + url.search, 301);
 
     const roomMatch = path.match(/^\/auditorios\/([a-z0-9-]+)$/);
     if (roomMatch) {

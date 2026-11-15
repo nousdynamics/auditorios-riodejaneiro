@@ -720,6 +720,29 @@ function formDialog(): void {
 }
 
 // ---------------------------------------------------------------------------
+// Carrossel de salas (página /rio-de-janeiro): rolagem nativa com encaixe + setas
+// ---------------------------------------------------------------------------
+function carousels(): void {
+  $$('[data-carousel]').forEach((root) => {
+    const track = $('.lp-carousel__track', root);
+    const prev = $<HTMLButtonElement>('[data-dir="-1"]', root);
+    const next = $<HTMLButtonElement>('[data-dir="1"]', root);
+    if (!track || !prev || !next) return;
+    const step = () => ((track.firstElementChild as HTMLElement | null)?.getBoundingClientRect().width ?? track.clientWidth) + 20;
+    const sync = () => {
+      prev.disabled = track.scrollLeft <= 4;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    };
+    const go = (dir: number) => track.scrollBy({ left: dir * step(), behavior: reducedMotion ? 'auto' : 'smooth' });
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    track.addEventListener('scroll', sync, { passive: true });
+    addEventListener('resize', sync, { passive: true });
+    sync();
+  });
+}
+
+// ---------------------------------------------------------------------------
 captureUtm();
 header();
 reveal();
@@ -727,6 +750,7 @@ motion();
 planner();
 consultForm();
 formDialog();
+carousels();
 cookieNote();
 gallery();
 videos();

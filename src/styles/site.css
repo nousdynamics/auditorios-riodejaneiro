@@ -3154,68 +3154,17 @@ html:has(.form-dialog[open]) {
     width: 100%;
   }
 }
-/* min-width: 0 impede que a trilha (4 salas lado a lado) alargue a página */
-.lp-rooms {
-  overflow-x: clip;
-}
-.lp-carousel {
-  min-width: 0;
-  max-width: 100%;
-}
-.lp-carousel__track {
-  max-width: 100%;
+/* Salas da landing: grade de 2 colunas (1 no celular) */
+.lp-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: min(360px, 84%);
-  gap: 1.25rem;
-  /* só rolagem lateral: sem overflow-y explícito o navegador liga a barra vertical quando
-     o card cresce no hover (inclinação/sombra) */
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  padding: 0.75rem 0.25rem 1.25rem;
-  /* navegação pelas setas e por arrastar/deslizar: barra de rolagem escondida */
-  scrollbar-width: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem 2rem;
 }
-.lp-carousel__track::-webkit-scrollbar {
-  display: none;
-}
-.lp-carousel__track > * {
-  scroll-snap-align: start;
-}
-.lp-carousel__track:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 4px;
-  border-radius: var(--radius);
-}
-.lp-carousel__nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-.lp-carousel__btn {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-}
-.lp-carousel__btn .i {
-  width: 18px;
-  height: 18px;
-}
-.lp-carousel__btn--prev .i {
-  transform: rotate(180deg);
-}
-.lp-carousel__btn:disabled {
-  opacity: 0.35;
-  cursor: default;
+@media (max-width: 720px) {
+  .lp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.25rem;
+  }
 }
 .lp-why__grid {
   display: grid;
@@ -3279,6 +3228,9 @@ html:has(.form-dialog[open]) {
 }
 
 /* Card de sala da página de anúncio */
+.room-card--lp .room-card__media {
+  aspect-ratio: 4 / 3;
+}
 .room-card--lp .room-card__body {
   display: flex;
   flex-direction: column;

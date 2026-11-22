@@ -158,7 +158,7 @@ export function landingRoomCard(r: Room, i: number): SafeHtml {
   const top = r.amenities.filter((a) => a !== 'copa' && a !== 'banheiro').slice(0, 4);
   return html`<article class="room-card room-card--lp" data-reveal style="--i:${i}" data-capacity="${r.capacityMax}">
     <a class="room-card__media" href="#consulta" data-room="${r.name}" data-tilt aria-label="Agendar o ${r.name}" tabindex="-1">
-      ${cover ? picture(cover, { sizes: '(min-width: 760px) 360px, 84vw' }) : html`<span class="ph ph--empty"></span>`}
+      ${cover ? picture(cover, { sizes: '(min-width: 1100px) 600px, (min-width: 720px) 46vw, 92vw' }) : html`<span class="ph ph--empty"></span>`}
       <span class="room-card__cap">${icon('people')}${capacityText(r)}</span>
     </a>
     <div class="room-card__body">
@@ -287,7 +287,7 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <input id="f-website" name="website" tabindex="-1" autocomplete="off">
     </div>
     <div class="field field--wide consult__consent-wrap">
-      <label class="consult__consent"><input id="f-consent" name="consent" type="checkbox" value="1" required><span>Li e concordo com a <a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+      <label class="consult__consent"><input id="f-consent" name="consent" type="checkbox" value="1" required checked><span>Li e concordo com a <a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
     </div>
     <div class="field--wide consult__submit">
       <button class="btn btn--gold btn--lg" type="submit">Solicitar agendamento</button>

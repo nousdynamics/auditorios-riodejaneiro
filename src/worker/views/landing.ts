@@ -69,14 +69,8 @@ export function rioLandingPage(ctx: RenderCtx, data: SiteData): SafeHtml {
     <h2 id="lp-rooms-title" class="section__title">Salas disponíveis no Centro do Rio</h2>
     <p class="section__lead">Escolha o auditório e peça a disponibilidade para a sua data.</p>
   </header>
-  <div class="lp-carousel" data-carousel>
-    <div class="lp-carousel__track" tabindex="0" role="region" aria-label="Auditórios disponíveis">
-      ${rooms.map((r, i) => landingRoomCard(r, i))}
-    </div>
-    <div class="lp-carousel__nav">
-      <button class="lp-carousel__btn lp-carousel__btn--prev" type="button" data-dir="-1" aria-label="Sala anterior">${icon('arrow')}</button>
-      <button class="lp-carousel__btn" type="button" data-dir="1" aria-label="Próxima sala">${icon('arrow')}</button>
-    </div>
+  <div class="lp-grid">
+    ${rooms.map((r, i) => landingRoomCard(r, i))}
   </div>
 </section>
 

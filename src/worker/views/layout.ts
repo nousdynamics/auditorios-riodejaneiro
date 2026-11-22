@@ -144,7 +144,7 @@ ${body}
 ${meta.minimal ? minimalFooter(ctx) : footer(ctx)}
 <a class="wa-float" href="${whatsappUrl(s, meta.whatsappMessage)}" target="_blank" rel="noopener" aria-label="WhatsApp: ${phoneDisplay(s.whatsapp)}" title="WhatsApp" data-wa-float>${icon('whatsapp')}</a>
 <div class="cookie-note" role="region" aria-label="Aviso de cookies" data-cookie-note hidden>
-  <p>Usamos cookies para medir as visitas e o resultado dos nossos anúncios. <a href="/politica-de-privacidade">Saiba mais</a></p>
+  <p>Usamos cookies para medir as visitas e o resultado dos nossos anúncios. <a href="/politica-de-privacidade" target="_blank" rel="noopener">Saiba mais</a></p>
   <button class="btn btn--ink btn--sm" type="button" data-cookie-ok>Entendi</button>
 </div>
 </body>
@@ -155,10 +155,10 @@ function minimalHeader(ctx: RenderCtx): SafeHtml {
   const s = ctx.settings;
   return html`<header class="site-header site-header--min" data-header>
   <div class="site-header__inner">
-    <a class="brand" href="/" aria-label="${s.brandName}: página inicial">
+    <div class="brand">
       ${brandMark()}
       <span class="brand__text"><span class="brand__name">${s.brandName}</span><span class="brand__line">${s.brandLine}</span></span>
-    </a>
+    </div>
     <a class="btn btn--ink btn--sm" href="#consulta">Agendar sala</a>
   </div>
 </header>`;
@@ -169,7 +169,7 @@ function minimalFooter(ctx: RenderCtx): SafeHtml {
   return html`<footer class="site-footer site-footer--min">
   <div class="site-footer__base">
     <p>© ${new Date().getFullYear()} ${s.brandName}. ${fullAddress(s)}.</p>
-    <p class="site-footer__links"><a href="/">Site completo</a> <a href="/politica-de-privacidade">Política de privacidade</a></p>
+    <p class="site-footer__links"><a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de privacidade</a></p>
   </div>
 </footer>`;
 }

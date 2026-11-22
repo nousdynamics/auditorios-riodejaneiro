@@ -3175,7 +3175,11 @@ html:has(.form-dialog[open]) {
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding: 0.75rem 0.25rem 1.25rem;
-  scrollbar-width: thin;
+  /* navegação pelas setas e por arrastar/deslizar: barra de rolagem escondida */
+  scrollbar-width: none;
+}
+.lp-carousel__track::-webkit-scrollbar {
+  display: none;
 }
 .lp-carousel__track > * {
   scroll-snap-align: start;
@@ -3272,4 +3276,17 @@ html:has(.form-dialog[open]) {
   color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* Card de sala da página de anúncio */
+.room-card--lp .room-card__body {
+  display: flex;
+  flex-direction: column;
+}
+.room-card--lp .room-card__cta {
+  margin-top: auto;
+  justify-content: center;
+}
+.room-card--lp .room-card__amenities {
+  margin-bottom: 1.1rem;
 }

@@ -9,7 +9,7 @@ import { type SafeHtml, html } from '../lib/html';
 import { breadcrumbs, faqPage, graph, organizationGraph, roomItemList, webPage } from '../seo/schema';
 import { finalCta } from './home';
 import { type RenderCtx, layout } from './layout';
-import { consultForm, faqList, icon, picture, preloadPhoto, roomCard, steps } from './ui';
+import { consultForm, faqList, icon, landingRoomCard, picture, preloadPhoto, steps } from './ui';
 
 export const RIO_LANDING_PATH = '/rio-de-janeiro';
 
@@ -71,7 +71,7 @@ export function rioLandingPage(ctx: RenderCtx, data: SiteData): SafeHtml {
   </header>
   <div class="lp-carousel" data-carousel>
     <div class="lp-carousel__track" tabindex="0" role="region" aria-label="Auditórios disponíveis">
-      ${rooms.map((r, i) => roomCard(r, i))}
+      ${rooms.map((r, i) => landingRoomCard(r, i))}
     </div>
     <div class="lp-carousel__nav">
       <button class="lp-carousel__btn lp-carousel__btn--prev" type="button" data-dir="-1" aria-label="Sala anterior">${icon('arrow')}</button>
@@ -130,6 +130,8 @@ ${faqs.length
       head: hero ? preloadPhoto(hero, '100vw') : undefined,
       bodyClass: 'page-lp',
       minimal: true,
+      // Página só para anúncio: fora do Google (não concorre com a home); anúncios funcionam normalmente
+      noindex: true,
     },
     body,
   );

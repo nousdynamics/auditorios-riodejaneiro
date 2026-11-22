@@ -149,6 +149,29 @@ export function breadcrumb(items: { name: string; href?: string }[]): SafeHtml {
   </nav>`;
 }
 
+/**
+ * Card de sala da página de anúncio: nada leva para fora da página. A foto e o botão abrem
+ * o formulário (em janela) já com a sala escolhida.
+ */
+export function landingRoomCard(r: Room, i: number): SafeHtml {
+  const cover = r.photos[0];
+  const top = r.amenities.filter((a) => a !== 'copa' && a !== 'banheiro').slice(0, 4);
+  return html`<article class="room-card room-card--lp" data-reveal style="--i:${i}" data-capacity="${r.capacityMax}">
+    <a class="room-card__media" href="#consulta" data-room="${r.name}" data-tilt aria-label="Agendar o ${r.name}" tabindex="-1">
+      ${cover ? picture(cover, { sizes: '(min-width: 760px) 360px, 84vw' }) : html`<span class="ph ph--empty"></span>`}
+      <span class="room-card__cap">${icon('people')}${capacityText(r)}</span>
+    </a>
+    <div class="room-card__body">
+      <h3 class="room-card__title">${r.name}</h3>
+      ${r.tagline ? html`<p class="room-card__tagline">${r.tagline}</p>` : ''}
+      <ul class="room-card__amenities" aria-label="Recursos">
+        ${top.map((a) => html`<li>${icon(AMENITIES[a].icon)}<span>${AMENITIES[a].label}</span></li>`)}
+      </ul>
+      <a class="btn btn--ink btn--block room-card__cta" href="#consulta" data-room="${r.name}">Agendar esta sala ${icon('arrow')}</a>
+    </div>
+  </article>`;
+}
+
 export function roomCard(r: Room, i: number): SafeHtml {
   const cover = r.photos[0];
   const top = r.amenities.filter((a) => a !== 'copa' && a !== 'banheiro').slice(0, 4);

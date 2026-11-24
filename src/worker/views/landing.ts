@@ -1,15 +1,22 @@
 /**
  * Página de anúncio /rio-de-janeiro, no formato das landing pages de cidade do Yevent
- * (ex.: yevent.com.br/recife): topo com foto e chamada, salas logo abaixo em carrossel,
- * poucos diferenciais, chamada intermediária, dúvidas e o formulário curto em janela.
+ * (ex.: yevent.com.br/recife): topo com foto, chamada e o formulário curto já à vista
+ * (nome, WhatsApp e participantes; o resto em "Adicionar detalhes"), salas logo abaixo,
+ * poucos diferenciais, chamada intermediária e dúvidas. Os botões "Agendar sala" mais abaixo
+ * abrem o mesmo formulário em janela, e no celular uma barra fixa traz o "Agendar sala".
  * Cabeçalho e rodapé enxutos (sem menu) para a pessoa não sair da página.
+ *
+ * Por que o formulário no topo: em 11/2026 só 2 de cada 8 visitas chegavam ao formulário
+ * (que ficava no fim) e ninguém clicava em "Agendar sala" (medido no GTM/GA4).
+ * GTM: a conversão desta página depende do caminho /rio-de-janeiro, do evento "lead_enviado"
+ * e dos IDs do formulário (#consult-form, #f-name, #f-email, #f-phone) — não renomear.
  */
 import type { SiteData } from '../data';
 import { type SafeHtml, html } from '../lib/html';
 import { breadcrumbs, faqPage, graph, organizationGraph, roomItemList, webPage } from '../seo/schema';
 import { finalCta } from './home';
 import { type RenderCtx, layout } from './layout';
-import { consultForm, faqList, icon, landingRoomCard, picture, preloadPhoto, steps } from './ui';
+import { consultForm, faqList, icon, landingRoomCard, picture, preloadPhoto } from './ui';
 
 export const RIO_LANDING_PATH = '/rio-de-janeiro';
 
@@ -57,9 +64,14 @@ export function rioLandingPage(ctx: RenderCtx, data: SiteData): SafeHtml {
       <p class="lp-hero__lead" data-speakable>Salas de ${capacity} pessoas para cursos, treinamentos e reuniões no Centro do Rio. Por hora, por turno ou o andar completo.</p>
       <p class="hero__live"><span class="live-dot" aria-hidden="true"></span>${available} auditórios disponíveis no Rio de Janeiro</p>
       <div class="lp-hero__actions">
-        <a class="btn btn--gold btn--lg" href="#consulta">Agendar sala ${icon('arrow')}</a>
         <a class="btn btn--on-dark btn--lg" href="#salas">Ver as salas ${icon('arrow', 'i i--down')}</a>
       </div>
+    </div>
+    <div class="lp-hero__form" id="consulta" role="region" aria-labelledby="consulta-title">
+      <h2 id="consulta-title" class="lp-hero__form-title">Peça a disponibilidade</h2>
+      <p class="lp-hero__form-lead">Receba no WhatsApp os horários livres e os valores para o seu evento.</p>
+      <div class="lp-hero__form-body">${consultForm(s, rooms, { compact: true, submitLabel: 'Receber disponibilidade no WhatsApp' })}</div>
+      <p class="lp-hero__form-note">Sem cobrança nesta etapa. A reserva é confirmada pela equipe.</p>
     </div>
   </div>
 </section>
@@ -94,14 +106,10 @@ ${faqs.length
 </section>`
   : ''}
 
-<section class="section booking" id="consulta" aria-labelledby="consulta-title">
-  <div class="booking__intro">
-    <h2 id="consulta-title" class="section__title">Agende sua sala</h2>
-    <p class="section__lead">Informe seus dados e receba no WhatsApp a disponibilidade e os valores para o seu evento.</p>
-    ${steps()}
-  </div>
-  <div class="booking__form">${consultForm(s, rooms)}</div>
-</section>`;
+<div class="mobile-bar" data-mobile-bar data-bar-after="#consulta">
+  <span><strong>Auditórios no Centro do Rio</strong>${capacity} pessoas · por hora ou turno</span>
+  <a class="btn btn--gold btn--sm" href="#consulta">Agendar sala</a>
+</div>`;
 
   const jsonLd = graph(
     organizationGraph(base, s, rooms),

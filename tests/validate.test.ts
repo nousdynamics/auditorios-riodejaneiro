@@ -58,19 +58,19 @@ describe('validateLead', () => {
     expect(fieldsOf(() => validateLead({ ...base, phone: '99999-0000' }, today)).phone).toBeDefined();
   });
 
-  it('aceita só nome, e-mail, WhatsApp e participantes (data opcional)', () => {
-    const lead = validateLead({ name: 'Ana', email: 'ana@example.com', phone: '(21) 98186-0023', people: 20, channel: 'formulario' }, today);
-    expect(lead).toMatchObject({ eventDate: '', space: '', schedule: '', activity: '', modality: '', people: 20 });
+  it('aceita só nome, WhatsApp e participantes (e-mail e data opcionais)', () => {
+    const lead = validateLead({ name: 'Ana', phone: '(21) 98186-0023', people: 20, channel: 'formulario' }, today);
+    expect(lead).toMatchObject({ email: '', eventDate: '', space: '', schedule: '', activity: '', modality: '', people: 20 });
   });
 
-  it('exige e-mail válido', () => {
-    expect(fieldsOf(() => validateLead({ ...base, email: '' }, today)).email).toBe('Informe seu e-mail.');
-    expect(fieldsOf(() => validateLead({ ...base, email: 'maria@' }, today)).email).toBeDefined();
+  it('e-mail é opcional, mas se vier precisa ser válido', () => {
+    expect(validateLead({ ...base, email: '' }, today).email).toBe('');
+    expect(fieldsOf(() => validateLead({ ...base, email: 'maria@' }, today)).email).toBe('E-mail inválido.');
   });
 
   it('aponta os campos obrigatórios', () => {
     const fields = fieldsOf(() => validateLead({ channel: 'formulario' }, today));
-    expect(Object.keys(fields).sort()).toEqual(['email', 'name', 'people', 'phone']);
+    expect(Object.keys(fields).sort()).toEqual(['name', 'people', 'phone']);
     expect(fields.people).toBe('Informe o número de participantes.');
   });
 

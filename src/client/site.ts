@@ -266,6 +266,8 @@ function planner(): void {
 // ---------------------------------------------------------------------------
 type FormFields = HTMLFormControlsCollection & Record<string, HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement>;
 const DRAFT_KEY = 'consulta-rascunho';
+/** Campos obrigatórios, na ordem em que recebem o foco (e-mail é opcional). */
+const REQUIRED_FIELDS = ['name', 'phone', 'people'];
 
 function setField(form: HTMLFormElement, name: string, value: string): void {
   const el = (form.elements as FormFields)[name];
@@ -320,15 +322,19 @@ function consultForm(): void {
     const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-room], [data-activity], [data-people]');
     if (!trigger || !trigger.matches('a[href*="#consulta"]')) return;
     const { room, activity, people, modality } = trigger.dataset;
-    if (room) setField(form, 'space', room);
+    if (room) {
+      setField(form, 'space', room);
+      // formulário compacto: a sala fica no bloco opcional; abre para a pessoa ver o que foi escolhido
+      fields.space?.closest('details')?.setAttribute('open', '');
+    }
     if (activity) setField(form, 'activity', activity);
     if (people) setField(form, 'people', people);
     if (modality) setField(form, 'modality', modality);
     else if (room?.includes('pacote corporativo')) setField(form, 'modality', 'Pacote corporativo');
     if (!result.hidden) showForm();
-    // foca o primeiro campo vazio depois da rolagem
+    // foca o primeiro campo obrigatório vazio depois da rolagem
     setTimeout(() => {
-      const empty = ['name', 'email', 'phone', 'people'].map((n) => fields[n]).find((f) => f && !f.value);
+      const empty = REQUIRED_FIELDS.map((n) => fields[n]).find((f) => f && !f.value);
       empty?.focus({ preventScroll: true });
     }, reducedMotion ? 0 : 650);
   });
@@ -370,8 +376,8 @@ function consultForm(): void {
     const email = (data.email ?? '').trim();
     const errors: Record<string, string> = {};
     if ((data.name ?? '').trim().length < 2) errors.name = 'Informe seu nome.';
-    if (!email) errors.email = 'Informe seu e-mail.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
+    // e-mail é opcional; se preenchido, precisa ser válido
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Confira o e-mail.';
     const phoneDigits = (data.phone ?? '').replace(/\D/g, '');
     if (!phoneDigits) errors.phone = 'Informe seu WhatsApp.';
     else if (phoneDigits.length < 10) errors.phone = 'Inclua o DDD no WhatsApp.';
@@ -604,21 +610,24 @@ function roomFilter(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Barra fixa no celular (página da sala)
+// Barra fixa no celular (página da sala e landing de anúncio)
+// Aparece depois que o "ponto de partida" sai da tela por cima (a galeria na sala; na landing,
+// o bloco do formulário do topo, via data-bar-after) e some quando o formulário está à vista.
 // ---------------------------------------------------------------------------
 function mobileBar(): void {
   const bar = $('[data-mobile-bar]');
-  const gallery = $('[data-gallery]');
+  const after = bar?.dataset.barAfter;
+  const start = $('[data-gallery]') ?? (after ? $(after) : null);
   const consult = $('#consulta');
-  if (!bar || !gallery) return;
-  let galleryOut = false;
+  if (!bar || !start) return;
+  let startOut = false;
   let consultIn = false;
-  const sync = () => bar.classList.toggle('is-visible', galleryOut && !consultIn);
+  const sync = () => bar.classList.toggle('is-visible', startOut && !consultIn);
   new IntersectionObserver(([e]) => {
-    galleryOut = !e.isIntersecting && e.boundingClientRect.top < 0;
+    startOut = !e.isIntersecting && e.boundingClientRect.top < 0;
     sync();
-  }).observe(gallery);
-  if (consult)
+  }).observe(start);
+  if (consult && consult !== start)
     new IntersectionObserver(([e]) => {
       consultIn = e.isIntersecting;
       sync();
@@ -690,14 +699,25 @@ function formDialog(): void {
     dialog.close();
     restore();
   };
+  const focusFirstEmpty = () => {
+    const fields = form.elements as FormFields;
+    const empty = REQUIRED_FIELDS.map((n) => fields[n]).find((el) => el && !el.value);
+    (empty ?? fields.name)?.focus();
+  };
   const open = () => {
     if (dialog.open) return;
     if (!body.contains(form)) while (holder.firstChild) body.append(holder.firstChild);
     dialog.showModal();
-    const fields = form.elements as FormFields;
-    const empty = ['name', 'email', 'phone', 'people'].map((n) => fields[n]).find((el) => el && !el.value);
-    (empty ?? fields.name)?.focus();
+    focusFirstEmpty();
   };
+  // Formulário já à vista na página (ex.: topo da landing): o link só leva o foco até ele, sem janela
+  let inlineVisible = false;
+  new IntersectionObserver(
+    ([e]) => {
+      inlineVisible = e.intersectionRatio >= 0.25;
+    },
+    { threshold: [0, 0.25, 0.5, 1] },
+  ).observe(holder);
   // Esc: fecha e devolve na hora ("close" fica como garantia)
   dialog.addEventListener('cancel', (e) => {
     e.preventDefault();
@@ -715,7 +735,8 @@ function formDialog(): void {
     const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href$="#consulta"]');
     if (!a || a.origin !== location.origin) return;
     e.preventDefault();
-    open();
+    if (inlineVisible && holder.contains(form)) focusFirstEmpty();
+    else open();
   });
   if (location.hash === '#consulta') open();
 }

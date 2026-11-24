@@ -243,45 +243,63 @@ export function faqList(faqs: Faq[], id = 'faq'): SafeHtml {
   </div>`;
 }
 
-/** Formulário de consulta (mesmo componente na home, nas salas e no pacote corporativo). */
-export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: string; modality?: string } = {}): SafeHtml {
+/**
+ * Formulário de consulta (mesmo componente na home, nas salas e no pacote corporativo).
+ * Obrigatórios: nome, WhatsApp e participantes (a equipe responde pelo WhatsApp; e-mail é opcional).
+ * `compact`: só os obrigatórios ficam à vista; sala, e-mail, tipo, data e detalhes vão para
+ * "Adicionar detalhes (opcional)". Usado na landing de anúncio, onde o formulário fica no topo.
+ * Os IDs (#consult-form, #f-name, #f-email, #f-phone, #consult-result) são usados pelo GTM: não renomear.
+ */
+export function consultForm(
+  s: SiteSettings,
+  rooms: Room[],
+  opts: { preset?: string; modality?: string; compact?: boolean; submitLabel?: string } = {},
+): SafeHtml {
   const spaces = [GUIDANCE_SPACE, ...rooms.map((r) => r.name), CORPORATE_SPACE];
   const preset = opts.preset ?? GUIDANCE_SPACE;
-  return html`<form class="consult" id="consult-form" novalidate data-guidance="${GUIDANCE_SPACE}">
-    <div class="field field--wide">
-      <label for="f-space">Sala de interesse</label>
+  const space = html`<div class="field field--wide">
+      <label for="f-space">Sala de interesse${opts.compact ? html` <span class="opt">(opcional)</span>` : ''}</label>
       <select id="f-space" name="space">
         ${spaces.map((sp) => html`<option value="${sp}" ${raw(sp === preset ? 'selected' : '')}>${sp === GUIDANCE_SPACE ? 'Ainda não sei — quero sugestões' : sp}</option>`)}
       </select>
-    </div>
-    <div class="field field--wide">
+    </div>`;
+  const name = html`<div class="field field--wide">
       <label for="f-name">Nome completo</label>
       <input id="f-name" name="name" required autocomplete="name" placeholder="Seu nome" maxlength="100">
-    </div>
-    <div class="field">
-      <label for="f-email">E-mail</label>
-      <input id="f-email" name="email" type="email" required autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
-    </div>
-    <div class="field">
+    </div>`;
+  const email = html`<div class="field">
+      <label for="f-email">E-mail <span class="opt">(opcional)</span></label>
+      <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@empresa.com.br" maxlength="120">
+    </div>`;
+  const phone = html`<div class="field">
       <label for="f-phone">WhatsApp</label>
       <input id="f-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="(21) 90000-0000" maxlength="20">
-    </div>
-    <div class="field field--wide">
+    </div>`;
+  const activity = html`<div class="field field--wide">
       <label for="f-activity">Tipo de evento <span class="opt">(opcional)</span></label>
       <select id="f-activity" name="activity"><option value="">Selecione</option>${ACTIVITIES.map((a) => html`<option>${a}</option>`)}</select>
-    </div>
-    <div class="field">
+    </div>`;
+  const people = html`<div class="field">
       <label for="f-people">Participantes</label>
       <input id="f-people" name="people" type="number" min="1" max="2000" inputmode="numeric" required placeholder="Ex.: 30">
-    </div>
-    <div class="field">
+    </div>`;
+  const date = html`<div class="field">
       <label for="f-date">Data <span class="opt">(opcional)</span></label>
       <input id="f-date" name="eventDate" type="date">
-    </div>
-    <div class="field field--wide">
+    </div>`;
+  const details = html`<div class="field field--wide">
       <label for="f-details">Detalhes <span class="opt">(opcional)</span></label>
       <textarea id="f-details" name="details" rows="3" maxlength="1500" placeholder="Horário, equipamentos, observações..."></textarea>
-    </div>
+    </div>`;
+  const fields = opts.compact
+    ? html`${name}${phone}${people}
+    <details class="consult__more field--wide">
+      <summary>Adicionar detalhes (opcional)</summary>
+      <div class="consult__more-grid">${space}${email}${date}${activity}${details}</div>
+    </details>`
+    : html`${space}${name}${email}${phone}${activity}${people}${date}${details}`;
+  return html`<form class="consult${opts.compact ? ' consult--compact' : ''}" id="consult-form" novalidate data-guidance="${GUIDANCE_SPACE}">
+    ${fields}
     <div class="field field--wide field--hp" aria-hidden="true">
       <label for="f-website">Não preencha este campo</label>
       <input id="f-website" name="website" tabindex="-1" autocomplete="off">
@@ -290,7 +308,7 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
       <label class="consult__consent"><input id="f-consent" name="consent" type="checkbox" value="1" required checked><span>Li e concordo com a <a href="/politica-de-privacidade" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
     </div>
     <div class="field--wide consult__submit">
-      <button class="btn btn--gold btn--lg" type="submit">Solicitar agendamento</button>
+      <button class="btn btn--gold btn--lg" type="submit">${opts.submitLabel ?? 'Solicitar agendamento'}</button>
     </div>
     <p class="consult__status field--wide" role="status" aria-live="polite"></p>
   </form>
@@ -306,7 +324,7 @@ export function consultForm(s: SiteSettings, rooms: Room[], opts: { preset?: str
 
 export function steps(): SafeHtml {
   return html`<ol class="steps">
-    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Preencha o formulário</strong><p>Sala, nome, e-mail, WhatsApp e número de participantes.</p></div></li>
+    <li><span class="steps__n" aria-hidden="true">1</span><div><strong>Preencha o formulário</strong><p>Nome, WhatsApp e número de participantes. O resto é opcional.</p></div></li>
     <li><span class="steps__n" aria-hidden="true">2</span><div><strong>Receba nossa mensagem</strong><p>A equipe responde no WhatsApp com disponibilidade, recursos e valores.</p></div></li>
     <li><span class="steps__n" aria-hidden="true">3</span><div><strong>Agende a sala para o seu evento</strong><p>Com tudo combinado, a data fica reservada para você.</p></div></li>
   </ol>`;
